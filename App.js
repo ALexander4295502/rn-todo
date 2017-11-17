@@ -46,6 +46,8 @@ export default class App extends Component<{}> {
     this.handleRemoveItem = this.handleRemoveItem.bind(this);
     this.handleFilter = this.handleFilter.bind(this);
     this.handleClearComplete = this.handleClearComplete.bind(this);
+    this.handleUpdateText = this.handleUpdateText.bind(this);
+    this.handleToggleEditing = this.handleToggleEditing.bind(this);
   }
 
   componentWillMount() {
@@ -61,6 +63,41 @@ export default class App extends Component<{}> {
     })
   }
 
+  setSource(items, itemsDatasource, otherState = {}) {
+    this.setState({
+      items,
+      dataSource: this.state.dataSource.cloneWithRows(itemsDatasource),
+      ...otherState
+    });
+    AsyncStorage.setItem("items", JSON.stringify(items));
+  }
+
+  handleUpdateText(key, text){
+    const newItems = this.state.items.map((item) => {
+      if(item.key !== key) return item;
+      else {
+        return {
+          ...item,
+          text
+        }
+      }
+    });
+    this.setSource(newItems, filterItems(this.state.filter, newItems));
+  }
+
+  handleToggleEditing(key, editing){
+    const newItems = this.state.items.map((item) => {
+      if(item.key !== key) return item;
+      else {
+        return {
+          ...item,
+          editing
+        }
+      }
+    });
+    this.setSource(newItems, filterItems(this.state.filter, newItems));
+  }
+
   handleAddItem() {
     if(!this.state.value) return;
     const newItems = [
@@ -72,15 +109,6 @@ export default class App extends Component<{}> {
       }
     ];
     this.setSource(newItems, filterItems(this.state.filter, newItems), {value: ""});
-  }
-
-  setSource(items, itemsDatasource, otherState = {}) {
-    this.setState({
-      items,
-      dataSource: this.state.dataSource.cloneWithRows(itemsDatasource),
-      ...otherState
-    });
-    AsyncStorage.setItem("items", JSON.stringify(items));
   }
 
   handleToggleAllComplete(){
@@ -143,6 +171,8 @@ export default class App extends Component<{}> {
                   {...value}
                   onRemove={() => this.handleRemoveItem(key)}
                   onComplete={(complete) => this.handleToggleComplete(key, complete)}
+                  onUpdate={(text) => this.handleUpdateText(key, text)}
+                  onToggleEdit={(editing) => this.handleToggleEditing(key, editing)}
                 />
               );
             }}
