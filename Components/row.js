@@ -5,8 +5,12 @@ import {
   Text,
   Switch,
   TouchableOpacity,
-  TextInput
+  TextInput,
 } from 'react-native';
+
+import {
+  MKSwitch
+} from 'react-native-material-kit';
 
 export default class Row extends Component {
   render() {
@@ -45,11 +49,12 @@ export default class Row extends Component {
         <Text style={styles.doneText}>Save</Text>
       </TouchableOpacity>
     );
+    // TODO: the thumb animation in MKSwitch cannot perform state change properly
     return (
       <View style={styles.container}>
-        <Switch
-          value={complete}
-          onValueChange={this.props.onComplete}
+        <MKSwitch
+          checked={complete}
+          onCheckedChange={this.props.onComplete}
         />
         {this.props.editing ? editingComponent : textComponent}
         {this.props.editing ? doneButton : removeButton}

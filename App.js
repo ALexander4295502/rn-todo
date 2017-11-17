@@ -15,6 +15,10 @@ import {
   ActivityIndicator
 } from 'react-native';
 
+import {
+  MKSpinner
+} from 'react-native-material-kit';
+
 import Footer from './Components/footer';
 import Header from './Components/header';
 import Row from './Components/row';
@@ -122,15 +126,17 @@ export default class App extends Component<{}> {
   }
 
   handleToggleComplete(key, complete){
-    console.log(complete);
+    const _complete=complete.checked;
+    console.log(_complete);
     const newItems = this.state.items.map((item) => {
       if(item.key !== key) return item;
       return {
         ...item,
-        complete
+        complete: _complete
       };
     });
     this.setSource(newItems, filterItems(this.state.filter, newItems));
+    console.table(newItems);
   }
 
   handleRemoveItem(key) {
@@ -164,7 +170,7 @@ export default class App extends Component<{}> {
             enableEmptySections
             dataSource={this.state.dataSource}
             onScroll={() => Keyboard.dismiss()}
-            keyboardShouldPersistTaps={true}
+            keyboardShouldPersistTaps="always"
             renderRow={({key, ...value}) => {
               return (
                 <Row
