@@ -3,17 +3,31 @@ import {
   StyleSheet,
   View,
   Text,
-  Switch,
   TouchableOpacity,
   TextInput,
 } from 'react-native';
 
 import {
-  MKSwitch
+  MKSwitch,
+  MKCheckbox,
+  MKButton,
 } from 'react-native-material-kit';
 
 export default class Row extends Component {
   render() {
+
+    const SaveButton = MKButton.coloredButton()
+      .withText('SAVE')
+      .withOnPress(() => {
+        this.props.onToggleEdit(false);
+      })
+      .build();
+
+    const DeleteButton = MKButton.coloredButton()
+      .withText('DELETE')
+      .withOnPress(this.props.onRemove)
+      .build();
+
     const {complete} = this.props;
     const textComponent = (
       <TouchableOpacity
@@ -25,11 +39,7 @@ export default class Row extends Component {
         </Text>
       </TouchableOpacity>
     );
-    const removeButton = (
-      <TouchableOpacity onPress={this.props.onRemove}>
-        <Text style={styles.destroy}>X</Text>
-      </TouchableOpacity>
-    );
+
     const editingComponent = (
       <View style={styles.textWrap}>
         <TextInput
@@ -41,23 +51,15 @@ export default class Row extends Component {
         />
       </View>
     );
-    const doneButton = (
-      <TouchableOpacity
-        style={styles.done}
-        onPress={() => this.props.onToggleEdit(false)}
-      >
-        <Text style={styles.doneText}>Save</Text>
-      </TouchableOpacity>
-    );
     // TODO: the thumb animation in MKSwitch cannot perform state change properly
     return (
       <View style={styles.container}>
-        <MKSwitch
+        <MKCheckbox
           checked={complete}
           onCheckedChange={this.props.onComplete}
         />
         {this.props.editing ? editingComponent : textComponent}
-        {this.props.editing ? doneButton : removeButton}
+        {this.props.editing ? <SaveButton /> : <DeleteButton />}
       </View>
     );
   }

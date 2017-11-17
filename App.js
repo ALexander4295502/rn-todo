@@ -34,6 +34,7 @@ const filterItems = (filter, items) => {
 export default class App extends Component<{}> {
 
   constructor(props){
+    console.ignoredYellowBox = ['Remote debugger'];
     super(props);
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     this.state = {
@@ -195,10 +196,7 @@ export default class App extends Component<{}> {
           count={filterItems("ACTIVE", this.state.items).length}
         />
         {this.state.loading && <View style={styles.loading}>
-          <ActivityIndicator
-            animating
-            size="large"
-          />
+          <MKSpinner style={styles.spinner}/>
         </View>}
       </View>
     );
@@ -232,5 +230,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(0,0,0,.2)'
+  },
+  spinner: {
+    width: 50,
+    height: 50,
   }
 });
