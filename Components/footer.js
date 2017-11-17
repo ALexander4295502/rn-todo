@@ -3,7 +3,7 @@ import {
   StyleSheet,
   View,
   Text,
-  TouchableOpacity
+  TouchableOpacity,
 } from 'react-native';
 
 export default class Footer extends Component {
@@ -32,6 +32,9 @@ export default class Footer extends Component {
             <Text>Completed</Text>
           </TouchableOpacity>
         </View>
+        <TouchableOpacity onPress={this.props.onClearComplete}>
+          <Text>Clear Completed</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -48,7 +51,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   filter: {
-    padding: 8,
+    padding: 4,
     borderRadius: 5,
     borderWidth: 1,
     borderColor: 'transparent'
