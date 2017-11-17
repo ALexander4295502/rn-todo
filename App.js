@@ -21,13 +21,16 @@ export default class App extends Component<{}> {
 
   constructor(props){
     super(props);
-    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 != r2});
+    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     this.state = {
       value: "",
       items: [],
       allComplete: false,
       dataSource: ds.cloneWithRows([])
-    }
+    };
+    this.handleToggleComplete = this.handleToggleComplete.bind(this);
+    this.handleToggleAllComplete = this.handleToggleAllComplete.bind(this);
+    this.handleAddItem = this.handleAddItem.bind(this);
   }
 
   handleAddItem() {
@@ -57,8 +60,20 @@ export default class App extends Component<{}> {
       ...item,
       complete
     }));
-    console.table(newItems);
+    // console.table(newItems);
     this.setSource(newItems, newItems, {allComplete: complete});
+  }
+
+  handleToggleComplete(key, complete){
+    console.log(complete);
+    const newItems = this.state.items.map((item) => {
+      if(item.key !== key) return item;
+      return {
+        ...item,
+        complete
+      };
+    });
+    this.setSource(newItems, newItems);
   }
 
   render() {
@@ -66,9 +81,9 @@ export default class App extends Component<{}> {
       <View style={styles.container}>
         <Header
           value={this.state.value}
-          onAddItem={this.handleAddItem.bind(this)}
+          onAddItem={this.handleAddItem}
           onChange={(value) => this.setState({value})}
-          onToggleAllComplete={this.handleToggleAllComplete.bind(this)}
+          onToggleAllComplete={this.handleToggleAllComplete}
         />
         <View style={styles.content}>
           <ListView
@@ -81,6 +96,7 @@ export default class App extends Component<{}> {
                 <Row
                   key={key}
                   {...value}
+                  onComplete={(complete) => this.handleToggleComplete(key, complete)}
                 />
               );
             }}
