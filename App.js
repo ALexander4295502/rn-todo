@@ -35,9 +35,23 @@ export default class App extends Component<{}> {
       }
     ];
     this.setState({
+      allComplete: false,
       items: newItem,
       value: ""
     });
+  }
+
+  handleToggleAllComplete(){
+    const complete = !this.state.allComplete;
+    const newItems = this.state.items.map((item) => ({
+      ...item,
+      complete
+    }));
+    console.table(newItems);
+    this.setState({
+      items: newItems,
+      allComplete: complete
+    })
   }
 
   render() {
@@ -47,6 +61,7 @@ export default class App extends Component<{}> {
           value={this.state.value}
           onAddItem={this.handleAddItem.bind(this)}
           onChange={(value) => this.setState({value})}
+          onToggleAllComplete={this.handleToggleAllComplete.bind(this)}
         />
         <View style={styles.content}>
 

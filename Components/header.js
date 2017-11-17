@@ -2,7 +2,9 @@ import React, {Component} from 'react';
 import {
   StyleSheet,
   View,
-  TextInput
+  TextInput,
+  TouchableOpacity,
+  Text
 } from 'react-native';
 
 export default class Header extends Component {
@@ -14,6 +16,13 @@ export default class Header extends Component {
   render() {
     return (
       <View style={styles.header}>
+        <TouchableOpacity
+          onPress={this.props.onToggleAllComplete}
+        >
+          <Text style={styles.toggleIcon}>
+            {String.fromCharCode(10003)}
+          </Text>
+        </TouchableOpacity>
         <TextInput
           value={this.props.value}
           onChangeText={this.props.onChange}
@@ -35,8 +44,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     alignItems: "center"
   },
+  toggleIcon: {
+    fontSize: 30,
+    color: "#ccc"
+  },
   input: {
     flex: 1,
+    marginLeft: 16,
     height: 50,
   }
 });
