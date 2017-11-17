@@ -164,6 +164,7 @@ export default class App extends Component<{}> {
             enableEmptySections
             dataSource={this.state.dataSource}
             onScroll={() => Keyboard.dismiss()}
+            keyboardShouldPersistTaps={true}
             renderRow={({key, ...value}) => {
               return (
                 <Row
