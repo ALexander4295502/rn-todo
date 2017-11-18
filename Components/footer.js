@@ -6,35 +6,55 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
+import {
+  MKRadioButton,
+  MKButton,
+} from 'react-native-material-kit';
+
 export default class Footer extends Component {
   render() {
     const {filter} = this.props;
+    const ClearAllButton = MKButton.coloredButton()
+      .withText("Clear all\n completed")
+      .withOnPress(() => {
+        this.props.onClearComplete();
+      })
+      .withTextStyle({
+        color: 'white',
+        fontWeight: 'bold',
+        textAlign: 'center'
+      })
+      .build();
+    const fontColor= {
+      color: this.props.primaryColor
+    };
     return (
       <View style={styles.container}>
-        <Text>{this.props.count} count</Text>
+        <Text style={[styles.count, fontColor]}>{this.props.count} todo</Text>
         <View style={styles.filters}>
-          <TouchableOpacity
-            style={[styles.filter, filter === "ALL" && styles.selected]}
-            onPress={() => this.props.onFilter("ALL")}
-          >
-            <Text>All</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.filter, filter === "ACTIVE" && styles.selected]}
-            onPress={() => this.props.onFilter("ACTIVE")}
-          >
-            <Text>Active</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.filter, filter === "COMPLETED" && styles.selected]}
-            onPress={() => this.props.onFilter("COMPLETED")}
-          >
-            <Text>Completed</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonWrap}>
+            <MKRadioButton
+              checked={filter === "ALL"}
+              onCheckedChange={() => this.props.onFilter("ALL")}
+            />
+            <Text style={[styles.buttonText, fontColor]}>ALL</Text>
+          </View>
+          <View style={styles.buttonWrap}>
+            <MKRadioButton
+              checked={filter === "ACTIVE"}
+              onCheckedChange={() => this.props.onFilter("ACTIVE")}
+            />
+            <Text style={[styles.buttonText, fontColor]}>ACTIVE</Text>
+          </View>
+          <View style={styles.buttonWrap}>
+            <MKRadioButton
+              checked={filter === "COMPLETED"}
+              onCheckedChange={() => this.props.onFilter("COMPLETED")}
+            />
+            <Text style={[styles.buttonText, fontColor]}>COMPLETE</Text>
+          </View>
         </View>
-        <TouchableOpacity onPress={this.props.onClearComplete}>
-          <Text>Clear Completed</Text>
-        </TouchableOpacity>
+        <ClearAllButton />
       </View>
     );
   }
@@ -56,7 +76,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'transparent'
   },
-  selected: {
-    borderColor: 'rgba(175, 47, 47, .2)'
+  count: {
+    fontWeight: 'bold'
+  },
+  buttonWrap: {
+    flexDirection: 'column',
+    marginHorizontal: 10,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  buttonText: {
+    fontWeight: 'bold',
+    fontSize: 10,
   }
 });
