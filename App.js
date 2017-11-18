@@ -9,21 +9,23 @@ import {
   StyleSheet,
   View,
   Platform,
-  ListView,
   Keyboard,
   AsyncStorage,
-  ActivityIndicator
+  FlatList
 } from 'react-native';
 
 import {
   MKSpinner
 } from 'react-native-material-kit';
 
+import moment from 'moment'
+
 import Footer from './Components/footer';
 import Header from './Components/header';
 import Row from './Components/row';
 
 const filterItems = (filter, items) => {
+  if(items === null) return [];
   return items.filter((item) => {
     if(filter === 'ALL') return true;
     if(filter === 'COMPLETED') return item.complete;
@@ -36,13 +38,12 @@ export default class App extends Component<{}> {
   constructor(props){
     console.ignoredYellowBox = ['Remote debugger'];
     super(props);
-    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
     this.state = {
       loading: true,
       value: "",
       items: [],
       allComplete: false,
-      dataSource: ds.cloneWithRows([]),
+      dataSource: [],
       filter: 'ALL'
     };
     this.handleToggleComplete = this.handleToggleComplete.bind(this);
@@ -53,6 +54,7 @@ export default class App extends Component<{}> {
     this.handleClearComplete = this.handleClearComplete.bind(this);
     this.handleUpdateText = this.handleUpdateText.bind(this);
     this.handleToggleEditing = this.handleToggleEditing.bind(this);
+    this.handleCancelEditing = this.handleCancelEditing.bind(this);
   }
 
   componentWillMount() {
@@ -71,7 +73,7 @@ export default class App extends Component<{}> {
   setSource(items, itemsDatasource, otherState = {}) {
     this.setState({
       items,
-      dataSource: this.state.dataSource.cloneWithRows(itemsDatasource),
+      dataSource: itemsDatasource,
       ...otherState
     });
     AsyncStorage.setItem("items", JSON.stringify(items));
@@ -83,7 +85,8 @@ export default class App extends Component<{}> {
       else {
         return {
           ...item,
-          text
+          text,
+          date: moment().format('MMMM Do YYYY, h:mm:ss a')
         }
       }
     });
@@ -106,11 +109,13 @@ export default class App extends Component<{}> {
   handleAddItem() {
     if(!this.state.value) return;
     const newItems = [
-      ...this.state.items,
+      ...this.state.items || [],
       {
         key: Date.now(),
+        date: moment().format('MMMM Do YYYY, h:mm:ss a'),
         text: this.state.value,
-        complete: false
+        complete: false,
+        editing: false
       }
     ];
     this.setSource(newItems, filterItems(this.state.filter, newItems), {value: ""});
@@ -137,7 +142,6 @@ export default class App extends Component<{}> {
       };
     });
     this.setSource(newItems, filterItems(this.state.filter, newItems));
-    console.table(newItems);
   }
 
   handleRemoveItem(key) {
@@ -156,6 +160,19 @@ export default class App extends Component<{}> {
     this.setSource(newItems, filterItems(this.state.filter, newItems));
   }
 
+  handleCancelEditing(key) {
+    const newItems = this.state.items.map((item) => {
+      if(item.key !== key) return item;
+      else {
+        return {
+          ...item,
+          editing: false
+        }
+      }
+    });
+    this.setSource(newItems, filterItems(this.state.filter, newItems));
+  }
+
   render() {
     return (
       <View style={styles.container}>
@@ -166,13 +183,14 @@ export default class App extends Component<{}> {
           onToggleAllComplete={this.handleToggleAllComplete}
         />
         <View style={styles.content}>
-          <ListView
+          <FlatList
             style={styles.list}
             enableEmptySections
-            dataSource={this.state.dataSource}
-            onScroll={() => Keyboard.dismiss()}
+            data={this.state.dataSource}
             keyboardShouldPersistTaps="always"
-            renderRow={({key, ...value}) => {
+            onScroll={() => Keyboard.dismiss()}
+            renderItem={({item}) => {
+              const {key, ...value} = item;
               return (
                 <Row
                   key={key}
@@ -181,11 +199,15 @@ export default class App extends Component<{}> {
                   onComplete={(complete) => this.handleToggleComplete(key, complete)}
                   onUpdate={(text) => this.handleUpdateText(key, text)}
                   onToggleEdit={(editing) => this.handleToggleEditing(key, editing)}
+                  onCancelEdit={() => this.handleCancelEditing(key)}
                 />
               );
             }}
-            renderSeparator={(sectionId, rowId) => {
-              return <View key={rowId} style={styles.separator}/>
+            ItemSeparatorComponent={() => {
+              return <View key={Date.now()} style={styles.separator}/>;
+            }}
+            keyExtractor={(item, index) => {
+              return item.key;
             }}
           />
         </View>

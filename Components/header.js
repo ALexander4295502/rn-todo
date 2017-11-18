@@ -7,6 +7,10 @@ import {
   Text
 } from 'react-native';
 
+import {
+  MKTextField,
+} from 'react-native-material-kit';
+
 export default class Header extends Component {
 
   constructor(props){
@@ -14,6 +18,7 @@ export default class Header extends Component {
   }
 
   render() {
+
     return (
       <View style={styles.header}>
         <TouchableOpacity
@@ -28,7 +33,8 @@ export default class Header extends Component {
           onChangeText={this.props.onChange}
           onSubmitEditing={this.props.onAddItem}
           placeholder="What needs to be done?"
-          blurOnSubmit={false}
+          blurOnSubmit={true}
+          focusOnSubmit={false}
           returnKeyTupe="done"
           style={styles.input}
         />
