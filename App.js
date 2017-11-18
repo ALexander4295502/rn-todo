@@ -99,7 +99,8 @@ export default class App extends Component<{}> {
       else {
         return {
           ...item,
-          editing
+          editing,
+          unsaved: item.text
         }
       }
     });
@@ -166,6 +167,7 @@ export default class App extends Component<{}> {
       else {
         return {
           ...item,
+          text: item.unsaved,
           editing: false
         }
       }
