@@ -21,14 +21,9 @@ import {
   MKColor
 } from 'react-native-material-kit';
 
-setTheme({
-  primaryColor: "#fd8ebe",
-  primaryColorRGB: MKColor.RGBPink,
-  accentColor: MKColor.Pink,
-  accentColorRGB: MKColor.RGBPink,
-});
-
-import moment from 'moment'
+import moment from 'moment';
+import DateTimePicker from 'react-native-modal-datetime-picker';
+import PushNotification from 'react-native-push-notification';
 
 import Footer from './Components/footer';
 import Header from './Components/header';
@@ -43,6 +38,13 @@ const filterItems = (filter, items) => {
   })
 };
 
+setTheme({
+  primaryColor: "#fd8ebe",
+  primaryColorRGB: MKColor.RGBPink,
+  accentColor: MKColor.Pink,
+  accentColorRGB: MKColor.RGBPink,
+});
+
 const theme = getTheme();
 
 export default class App extends Component<{}> {
@@ -56,7 +58,10 @@ export default class App extends Component<{}> {
       items: [],
       allComplete: false,
       dataSource: [],
-      filter: 'ALL'
+      showDatePicker: false,
+      filter: 'ALL',
+      showTimePicker: false,
+      showDateValue: ""
     };
     this.handleToggleComplete = this.handleToggleComplete.bind(this);
     this.handleToggleAllComplete = this.handleToggleAllComplete.bind(this);
@@ -68,6 +73,9 @@ export default class App extends Component<{}> {
     this.handleToggleEditing = this.handleToggleEditing.bind(this);
     this.handleCancelEditing = this.handleCancelEditing.bind(this);
     this.handleHeaderInputChange = this.handleHeaderInputChange.bind(this);
+    this.handleShowTimePicker = this.handleShowTimePicker.bind(this);
+    this._hideDateTimePicker = this._hideDateTimePicker.bind(this);
+    this._handleDatePicked = this._handleDatePicked.bind(this);
   }
 
   componentWillMount() {
@@ -76,6 +84,7 @@ export default class App extends Component<{}> {
         const items = JSON.parse(json);
         this.setSource(items, items, {loading: false});
       } catch (e) {
+        console.error("Load storage error", e);
         this.setState({
           loading: false
         });
@@ -127,16 +136,18 @@ export default class App extends Component<{}> {
       {
         key: Date.now(),
         date: moment().format('MMMM Do YYYY, h:mm:ss a'),
+        ddl: this.state.showDateValue,
         text: this.state.value,
         complete: false,
         editing: false
       }
     ];
-    this.setSource(newItems, filterItems(this.state.filter, newItems), {value: ""});
+    this.setSource(newItems, filterItems(this.state.filter, newItems), {value: "", showDateValue: ""});
   }
 
   handleToggleAllComplete(){
     const complete = !this.state.allComplete;
+    if(this.state.items === null) return;
     const newItems = this.state.items.map((item) => ({
       ...item,
       complete
@@ -193,7 +204,34 @@ export default class App extends Component<{}> {
     this.setSource(newItems, filterItems(this.state.filter, newItems));
   }
 
+  handleShowTimePicker() {
+    console.log("show picker!!!");
+    this.setState({
+      showDatePicker: true
+    });
+  }
+
+  _hideDateTimePicker(){
+    this.setState({ showDatePicker: false });
+  }
+
+  _handleDatePicked(date){
+    this.setState({
+      showDateValue: this.formatDate(date)
+    });
+    this._hideDateTimePicker();
+  };
+
+  formatDate(date){
+    return date === null ?
+      "" : (date.getMonth() + 1) + '/' + date.getDate() + '/' +  date.getFullYear();
+  }
+
   render() {
+    PushNotification.scheduleLocalNotification({
+      message: "My Notification Message", // (required)
+      date: new Date(Date.now() + (2 * 1000)) // in 60 secs
+    });
     return (
       <View style={styles.container}>
         <Header
@@ -202,6 +240,9 @@ export default class App extends Component<{}> {
           onChange={(value) => this.handleHeaderInputChange(value)}
           onToggleAllComplete={this.handleToggleAllComplete}
           primaryColor={theme.primaryColor}
+          showDatePicker={this.handleShowTimePicker}
+          showDatePickerFlag={this.state.showDatePicker}
+          showDateValue={this.state.showDateValue}
         />
         <View style={styles.content}>
           <FlatList
@@ -233,6 +274,11 @@ export default class App extends Component<{}> {
             }}
           />
         </View>
+        <DateTimePicker
+          isVisible={this.state.showDatePicker}
+          onConfirm={this._handleDatePicked}
+          onCancel={this._hideDateTimePicker}
+        />
         <Footer
           filter={this.state.filter}
           onFilter={this.handleFilter}

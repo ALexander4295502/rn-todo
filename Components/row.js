@@ -27,6 +27,11 @@ export default class Row extends Component {
     }).start()
   }
 
+  formatDate(date){
+    return date === null ?
+      "" : (date.getMonth() + 1) + '/' + date.getDate() + '/' +  date.getFullYear();
+  }
+
   render() {
     const animatedRowStyle = [
       {opacity: this.animatedValue},
@@ -68,7 +73,6 @@ export default class Row extends Component {
         }).start(() => {this.props.onRemove();})
       })
       .build();
-
     const {complete} = this.props;
     const textComponent = (
       <TouchableOpacity
@@ -79,7 +83,12 @@ export default class Row extends Component {
           {this.props.text}
         </Text>
         <View style={styles.timeView}>
-          <Text style={styles.timeText}>{this.props.date}</Text>
+          <Text style={styles.timeText}>
+            {
+              this.props.ddl === "" ?
+                "No deadline" : "DDL: " + this.props.ddl
+            }
+          </Text>
         </View>
       </TouchableOpacity>
     );
