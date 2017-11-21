@@ -76,6 +76,37 @@ export default class App extends Component<{}> {
     this.handleShowTimePicker = this.handleShowTimePicker.bind(this);
     this._hideDateTimePicker = this._hideDateTimePicker.bind(this);
     this._handleDatePicked = this._handleDatePicked.bind(this);
+    this.formatDate = this.formatDate.bind(this);
+
+    PushNotification.configure({
+      // (optional) Called when Token is generated (iOS and Android)
+      onRegister: function(token) {
+        console.log( 'TOKEN:', token );
+      },
+
+      // (required) Called when a remote or local notification is opened or received
+      onNotification: function(notification) {
+        return;
+      },
+
+      // IOS ONLY (optional): default: all - Permissions to register.
+      permissions: {
+        alert: true,
+        badge: true,
+        sound: true
+      },
+
+      // Should the initial notification be popped automatically
+      // default: true
+      popInitialNotification: true,
+
+      /**
+       * (optional) default: true
+       * - Specified if permissions (ios) and token (android and ios) will requested or not,
+       * - if not, you must call PushNotificationsHandler.requestPermissions() later
+       */
+      requestPermissions: true
+    });
   }
 
   componentWillMount() {
@@ -91,6 +122,16 @@ export default class App extends Component<{}> {
       }
     })
   }
+
+  scheduleNotification(_message, _date) {
+    if(_date === "") return;
+    let notificationDate = moment(_date, 'MM-DD-YYYY h:mm a').toDate();
+    let notificationMessage = 'You have a deadline today: ' + _message;
+    PushNotification.localNotificationSchedule({
+      message: notificationMessage, // (required)
+      date: notificationDate,
+    });
+  };
 
   setSource(items, itemsDatasource, otherState = {}) {
     this.setState({
@@ -108,7 +149,7 @@ export default class App extends Component<{}> {
         return {
           ...item,
           text,
-          date: moment().format('MMMM Do YYYY, h:mm:ss a')
+          date: moment().format('MM-DD-YYYY h:mm a')
         }
       }
     });
@@ -131,6 +172,7 @@ export default class App extends Component<{}> {
 
   handleAddItem() {
     if(!this.state.value) return;
+    this.scheduleNotification(this.state.value, this.state.showDateValue);
     const newItems = [
       ...this.state.items || [],
       {
@@ -224,13 +266,16 @@ export default class App extends Component<{}> {
 
   formatDate(date){
     return date === null ?
-      "" : (date.getMonth() + 1) + '/' + date.getDate() + '/' +  date.getFullYear();
+      "" : moment(date).format('MM-DD-YYYY h:mm a');
   }
 
   render() {
     PushNotification.scheduleLocalNotification({
+      foreground: true,
+      userInteraction: true,
+      title: "My Notification Title",
       message: "My Notification Message", // (required)
-      date: new Date(Date.now() + (2 * 1000)) // in 60 secs
+      date: new Date(Date.now() + (5 * 1000))
     });
     return (
       <View style={styles.container}>
@@ -263,6 +308,7 @@ export default class App extends Component<{}> {
                   onToggleEdit={(editing) => this.handleToggleEditing(key, editing)}
                   onCancelEdit={() => this.handleCancelEditing(key)}
                   primaryColor={theme.primaryColor}
+                  formatDate={this.formatDate}
                 />
               );
             }}
@@ -278,6 +324,7 @@ export default class App extends Component<{}> {
           isVisible={this.state.showDatePicker}
           onConfirm={this._handleDatePicked}
           onCancel={this._hideDateTimePicker}
+          mode="datetime"
         />
         <Footer
           filter={this.state.filter}

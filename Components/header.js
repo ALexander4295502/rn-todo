@@ -23,13 +23,6 @@ export default class Header extends Component {
   }
 
   render() {
-    const fontColor= {
-      color: this.props.primaryColor
-    };
-    const FlatButton = MKButton.flatButton()
-      .withText("Select date")
-      .build();
-
     // TODO: here we use TextInput instead of MKTextInput because of:
     // https://github.com/xinthink/react-native-material-kit/issues/369
     return (
@@ -64,6 +57,7 @@ export default class Header extends Component {
             onPress={this.props.showDatePicker}
             style={styles.datePickerButton}
           >
+
             <Text pointerEvents="none"
                   style={{color: this.props.primaryColor, fontWeight: 'bold'}}>
               {this.props.showDatePickerFlag ?
@@ -100,9 +94,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   input: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'space-around'
   },
   datePickerButton: {
     height: 35,

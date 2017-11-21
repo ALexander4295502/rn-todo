@@ -13,6 +13,8 @@ import {
   MKButton,
 } from 'react-native-material-kit';
 
+import moment from 'moment';
+
 export default class Row extends Component {
 
   constructor(props){
@@ -25,11 +27,6 @@ export default class Row extends Component {
       toValue: 1,
       duration: 250,
     }).start()
-  }
-
-  formatDate(date){
-    return date === null ?
-      "" : (date.getMonth() + 1) + '/' + date.getDate() + '/' +  date.getFullYear();
   }
 
   render() {
@@ -74,6 +71,7 @@ export default class Row extends Component {
       })
       .build();
     const {complete} = this.props;
+    console.log(this.props.ddl);
     const textComponent = (
       <TouchableOpacity
         style={styles.textWrap}
@@ -86,7 +84,10 @@ export default class Row extends Component {
           <Text style={styles.timeText}>
             {
               this.props.ddl === "" ?
-                "No deadline" : "DDL: " + this.props.ddl
+                "No deadline" :
+                "DDL: " + moment(
+                  this.props.ddl, 'MM-DD-YYYY h:mm a'
+                ).calendar()
             }
           </Text>
         </View>
@@ -164,7 +165,7 @@ const styles = StyleSheet.create({
     marginTop: 10
   },
   timeText: {
-    fontSize: 10,
+    fontSize: 15,
     color: "#CC9A9A"
   },
   buttonWrap: {
