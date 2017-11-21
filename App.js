@@ -156,6 +156,7 @@ export default class App extends Component<{}> {
     this.setSource(newItems, filterItems(this.state.filter, newItems));
   }
 
+  // TODO: modify content should also update notification message
   handleToggleEditing(key, editing){
     const newItems = this.state.items.map((item) => {
       if(item.key !== key) return item;
