@@ -4,7 +4,8 @@
 	"private": true,
 	"scripts": {
 		"start": "node node_modules/react-native/local-cli/cli.js start",
-		"test": "jest"
+		"test": "jest",
+		"deploy": react-native bundle --platform ios --dev false --entry-file App.js --bundle-output iOS/main.jsbundle
 	},
 	"dependencies": {
 		"moment": "^2.19.2",
