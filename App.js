@@ -271,13 +271,6 @@ export default class App extends Component<{}> {
   }
 
   render() {
-    PushNotification.scheduleLocalNotification({
-      foreground: true,
-      userInteraction: true,
-      title: "My Notification Title",
-      message: "My Notification Message", // (required)
-      date: new Date(Date.now() + (5 * 1000))
-    });
     return (
       <View style={styles.container}>
         <Header
