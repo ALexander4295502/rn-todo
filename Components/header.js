@@ -48,6 +48,7 @@ export default class Header extends Component {
             returnKeyTupe="done"
             style={styles.textInput}
             clearButtonMode="while-editing"
+            returnKeyType='done'
           />
           <MKButton
             backgroundColor={MKColor.Transparent}

@@ -101,6 +101,7 @@ export default class Row extends Component {
           autoFocus
           value={this.props.text}
           style={styles.input}
+          returnKeyType='done'
           multiline
         />
       </View>
