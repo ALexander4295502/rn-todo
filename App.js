@@ -123,11 +123,12 @@ export default class App extends Component<{}> {
     })
   }
 
-  scheduleNotification(_message, _date) {
+  scheduleNotification(_id, _message, _date) {
     if(_date === "") return;
     let notificationDate = moment(_date, 'MM-DD-YYYY h:mm a').toDate();
     let notificationMessage = 'You have a deadline today: ' + _message;
     PushNotification.localNotificationSchedule({
+      id: _id,
       message: notificationMessage, // (required)
       date: notificationDate,
     });
@@ -173,12 +174,13 @@ export default class App extends Component<{}> {
 
   handleAddItem() {
     if(!this.state.value) return;
-    this.scheduleNotification(this.state.value, this.state.showDateValue);
+    let _date = moment().format('MMMM Do YYYY, h:mm:ss a');
+    this.scheduleNotification(_date, this.state.value, this.state.showDateValue);
     const newItems = [
       ...this.state.items || [],
       {
         key: Date.now(),
-        date: moment().format('MMMM Do YYYY, h:mm:ss a'),
+        date: _date,
         ddl: this.state.showDateValue,
         text: this.state.value,
         complete: false,
