@@ -11,6 +11,7 @@ import {
 import {
   MKCheckbox,
   MKButton,
+  MKProgress,
 } from 'react-native-material-kit';
 
 import moment from 'moment';
@@ -20,16 +21,65 @@ export default class Row extends Component {
   constructor(props){
     super(props);
     this.animatedValue = new Animated.Value(0);
+    this.state = {
+      timeRemain: moment.duration(
+        moment().diff(moment(this.props.date, 'MM-DD-YYYY h:mm:ss a'))
+      ),
+      totalTime: moment.duration(
+        moment(this.props.ddl, 'MM-DD-YYYY h:mm:ss a').diff(moment(this.props.date, 'MM-DD-YYYY h:mm:ss a'))
+      ),
+    };
+    this.remainTimeTextGenerate = this.remainTimeTextGenerate.bind(this);
+    this.remainTimeProgress = this.remainTimeProgress.bind(this);
   }
 
   componentDidMount() {
     Animated.timing(this.animatedValue, {
       toValue: 1,
       duration: 250,
-    }).start()
+    }).start();
+
+    if(this.props.ddl !== ""){
+      setInterval( () => {
+        if(this.props.timeUp){
+        } else {
+          if(parseInt(this.state.timeRemain.asMilliseconds()) < 0){
+            this.props.onTimeUp();
+            return;
+          }
+          this.setState({
+            timeRemain : moment.duration(
+              moment(this.props.ddl, 'MM-DD-YYYY h:mm:ss a').diff(moment())
+            )
+          })
+        }
+      },1000)
+    }
+  }
+
+  remainTimeTextGenerate(remainTime){
+    if(this.props.timeUp) return "time up";
+    if(parseInt(remainTime.asDays()) > 0)
+      return parseInt(remainTime.asDays()) + " days left";
+    else if(parseInt(remainTime.asHours()) > 0)
+      return parseInt(remainTime.asHours()) + " hours left";
+    else if(parseInt(remainTime.asMinutes()) > 0)
+      return parseInt(remainTime.asMinutes()) + " minutes left";
+    else if(parseInt(remainTime.asSeconds()) > 0)
+      return parseInt(remainTime.asSeconds()) + " seconds left";
+    return "loading";
+  }
+
+  remainTimeProgress(remainTime){
+    if(this.state.timeUp) return 1.0;
+    return Math.min(
+      1.0,
+      1.0 - parseInt(remainTime.asMilliseconds())/parseInt(this.state.totalTime.asMilliseconds())
+    );
   }
 
   render() {
+    console.log(this.state.timeRemain.asMilliseconds(), this.props.timeUp);
     const animatedRowStyle = [
       {opacity: this.animatedValue},
       {
@@ -71,7 +121,6 @@ export default class Row extends Component {
       })
       .build();
     const {complete} = this.props;
-    console.log(this.props.ddl);
     const textComponent = (
       <TouchableOpacity
         style={styles.textWrap}
@@ -86,11 +135,27 @@ export default class Row extends Component {
               this.props.ddl === "" ?
                 "No deadline" :
                 "DDL: " + moment(
-                  this.props.ddl, 'MM-DD-YYYY h:mm a'
+                  this.props.ddl, 'MM-DD-YYYY h:mm:ss a'
                 ).calendar()
             }
           </Text>
         </View>
+        {this.props.ddl === "" ? null :
+          <View style={styles.progressWrap}>
+            <MKProgress
+              progress={this.remainTimeProgress(this.state.timeRemain)}
+              style={styles.progressBar}
+            />
+            <Text
+              style={[
+                styles.progressText,
+                {color: this.props.theme.primaryColor}
+              ]}
+            >
+              {this.remainTimeTextGenerate(this.state.timeRemain)}
+            </Text>
+          </View>
+        }
       </TouchableOpacity>
     );
 
@@ -120,7 +185,7 @@ export default class Row extends Component {
         <MKCheckbox
           checked={complete}
           onCheckedChange={this.props.onComplete}
-          borderOffColor={this.props.primaryColor}
+          borderOffColor={this.props.theme.primaryColor}
         />
         {this.props.editing ? editingComponent : textComponent}
         {this.props.editing ? editingButtons : <DeleteButton />}
@@ -135,6 +200,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between'
+  },
+  progressWrap: {
+    flex: 1,
+    flexDirection: 'row',
+    marginTop: 8,
+    alignItems: 'center'
+  },
+  progressText: {
+    marginLeft: 19,
+    fontSize: 12,
+    fontWeight: 'bold',
+    width: 80,
+    textAlign: 'center'
+  },
+  progressBar: {
+    width: 250
   },
   input: {
     flex: 1,
@@ -163,10 +244,10 @@ const styles = StyleSheet.create({
     color: "#CC9A9A"
   },
   timeView: {
-    marginTop: 10
+    marginTop: 5
   },
   timeText: {
-    fontSize: 15,
+    fontSize: 10,
     color: "#CC9A9A"
   },
   buttonWrap: {

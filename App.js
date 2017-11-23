@@ -11,7 +11,8 @@ import {
   Platform,
   Keyboard,
   AsyncStorage,
-  FlatList
+  FlatList,
+  Text
 } from 'react-native';
 
 import {
@@ -24,6 +25,7 @@ import {
 import moment from 'moment';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import PushNotification from 'react-native-push-notification';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 import Footer from './Components/footer';
 import Header from './Components/header';
@@ -61,7 +63,8 @@ export default class App extends Component<{}> {
       showDatePicker: false,
       filter: 'ALL',
       showTimePicker: false,
-      showDateValue: ""
+      showDateValue: "",
+      visible: false,
     };
     this.handleToggleComplete = this.handleToggleComplete.bind(this);
     this.handleToggleAllComplete = this.handleToggleAllComplete.bind(this);
@@ -77,6 +80,8 @@ export default class App extends Component<{}> {
     this._hideDateTimePicker = this._hideDateTimePicker.bind(this);
     this._handleDatePicked = this._handleDatePicked.bind(this);
     this.formatDate = this.formatDate.bind(this);
+    this.renderEmpty = this.renderEmpty.bind(this);
+    this.handleTimeUp = this.handleTimeUp.bind(this);
 
     PushNotification.configure({
       // (optional) Called when Token is generated (iOS and Android)
@@ -125,7 +130,7 @@ export default class App extends Component<{}> {
 
   scheduleNotification(_id, _message, _date) {
     if(_date === "") return;
-    let notificationDate = moment(_date, 'MM-DD-YYYY h:mm a').toDate();
+    let notificationDate = moment(_date, 'MM-DD-YYYY h:mm:ss a').toDate();
     let notificationMessage = 'You have a deadline today: ' + _message;
     PushNotification.localNotificationSchedule({
       id: _id,
@@ -150,7 +155,20 @@ export default class App extends Component<{}> {
         return {
           ...item,
           text,
-          date: moment().format('MM-DD-YYYY h:mm a')
+        }
+      }
+    });
+    this.setSource(newItems, filterItems(this.state.filter, newItems));
+  }
+
+  handleTimeUp(key){
+    console.log("time up!");
+    const newItems = this.state.items.map((item) => {
+      if(item.key !== key) return item;
+      else {
+        return {
+          ...item,
+          timeUp: true
         }
       }
     });
@@ -174,7 +192,7 @@ export default class App extends Component<{}> {
 
   handleAddItem() {
     if(!this.state.value) return;
-    let _date = moment().format('MMMM Do YYYY, h:mm:ss a');
+    let _date = moment().format('MM-DD-YYYY h:mm:ss a');
     this.scheduleNotification(_date, this.state.value, this.state.showDateValue);
     const newItems = [
       ...this.state.items || [],
@@ -184,7 +202,8 @@ export default class App extends Component<{}> {
         ddl: this.state.showDateValue,
         text: this.state.value,
         complete: false,
-        editing: false
+        editing: false,
+        timeUp: false,
       }
     ];
     this.setSource(newItems, filterItems(this.state.filter, newItems), {value: "", showDateValue: ""});
@@ -269,7 +288,18 @@ export default class App extends Component<{}> {
 
   formatDate(date){
     return date === null ?
-      "" : moment(date).format('MM-DD-YYYY h:mm a');
+      "" : moment(date).format('MM-DD-YYYY h:mm:ss a');
+  }
+
+  renderEmpty(){
+    return (
+      <View style={styles.emptyView}>
+        <Icon name="md-arrow-up" color={theme.primaryColor} size={30} />
+        <Text style={styles.emptyText}>
+          There is no todo, add todo from top
+        </Text>
+      </View>
+    )
   }
 
   render() {
@@ -286,35 +316,40 @@ export default class App extends Component<{}> {
           showDateValue={this.state.showDateValue}
         />
         <View style={styles.content}>
-          <FlatList
-            style={styles.list}
-            enableEmptySections
-            data={this.state.dataSource}
-            keyboardShouldPersistTaps="always"
-            onScroll={() => Keyboard.dismiss()}
-            renderItem={({item}) => {
-              const {key, ...value} = item;
-              return (
-                <Row
-                  key={key}
-                  {...value}
-                  onRemove={() => this.handleRemoveItem(key)}
-                  onComplete={(complete) => this.handleToggleComplete(key, complete)}
-                  onUpdate={(text) => this.handleUpdateText(key, text)}
-                  onToggleEdit={(editing) => this.handleToggleEditing(key, editing)}
-                  onCancelEdit={() => this.handleCancelEditing(key)}
-                  primaryColor={theme.primaryColor}
-                  formatDate={this.formatDate}
-                />
-              );
-            }}
-            ItemSeparatorComponent={() => {
-              return <View key={Date.now()} style={styles.separator}/>;
-            }}
-            keyExtractor={(item, index) => {
-              return item.key;
-            }}
-          />
+          {this.state.items.length === 0 ?
+            this.renderEmpty() :
+            <FlatList
+              style={styles.list}
+              enableEmptySections
+              data={this.state.dataSource}
+              keyboardShouldPersistTaps="always"
+              onScroll={() => Keyboard.dismiss()}
+              renderItem={({item}) => {
+                const {key, ...value} = item;
+                return (
+                  <Row
+                    key={key}
+                    {...value}
+                    onRemove={() => this.handleRemoveItem(key)}
+                    onComplete={(complete) => this.handleToggleComplete(key, complete)}
+                    onUpdate={(text) => this.handleUpdateText(key, text)}
+                    onToggleEdit={(editing) => this.handleToggleEditing(key, editing)}
+                    onCancelEdit={() => this.handleCancelEditing(key)}
+                    onTimeUp={() => this.handleTimeUp(key)}
+                    theme={theme}
+                    formatDate={this.formatDate}
+                  />
+                );
+              }}
+              ItemSeparatorComponent={() => {
+                return <View key={Date.now()} style={styles.separator}/>;
+              }}
+              keyExtractor={(item, index) => {
+                return item.key;
+              }}
+            />
+          }
+
         </View>
         <DateTimePicker
           isVisible={this.state.showDatePicker}
@@ -346,7 +381,16 @@ const styles = StyleSheet.create({
     })
   },
   content: {
-    flex: 1
+    flex: 1,
+  },
+  emptyView: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    alignItems: 'center'
+  },
+  emptyText: {
+    color: theme.primaryColor
   },
   list: {
     backgroundColor: "#fff"
