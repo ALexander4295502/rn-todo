@@ -1,9 +1,9 @@
 # rn-todo
 ## Todo 
 - [x] Mars 1. add the DDL :star::star::star::star:
-- [] Mars 2. add the class for different event :star::star::star:
-- [] Mars 3. add calendar :star::star::star::star:
-- [] Mars 4. add popUp :star::star:
+- [ ] Mars 2. add the class for different event :star::star::star:
+- [ ] Mars 3. add calendar :star::star::star::star:
+- [ ] Mars 4. add popUp :star::star:
 - [x] Mars 5. add alarm :star::star::star:
 
 
