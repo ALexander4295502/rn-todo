@@ -72,7 +72,8 @@ export default class Row extends Component {
   }
 
   remainTimeProgress(remainTime){
-    if(this.state.timeUp) return 1.0;
+    if(this.props.complete) return 0;
+    if(this.props.timeUp) return 1.0;
     return Math.min(
       1.0,
       1.0 - parseInt(remainTime.asMilliseconds())/parseInt(this.state.totalTime.asMilliseconds())
