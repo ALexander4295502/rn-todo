@@ -5,6 +5,7 @@
 - [ ] Mars 3. add calendar :star::star::star::star:
 - [ ] Mars 4. add popUp :star::star:
 - [x] Mars 5. add alarm :star::star::star:
+- [ ] Mars 6  change theme color :star::star:
 
 
 
