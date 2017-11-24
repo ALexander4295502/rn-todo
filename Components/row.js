@@ -41,7 +41,7 @@ export default class Row extends Component {
 
     if(this.props.ddl !== ""){
       setInterval( () => {
-        if(this.props.timeUp){
+        if(this.props.timeUp || this.props.complete){
         } else {
           if(parseInt(this.state.timeRemain.asMilliseconds()) < 0){
             this.props.onTimeUp();
@@ -59,6 +59,7 @@ export default class Row extends Component {
 
   remainTimeTextGenerate(remainTime){
     if(this.props.timeUp) return "time up";
+    if(this.props.complete) return "completed!";
     if(parseInt(remainTime.asDays()) > 0)
       return parseInt(remainTime.asDays()) + " days left";
     else if(parseInt(remainTime.asHours()) > 0)
