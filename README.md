@@ -1,7 +1,7 @@
 # rn-todo
 ## Todo 
 - [x] add the DDL :star::star::star::star:
-- [ ] add the class for different event :star::star::star:
+- [x] add the class for different event :star::star::star:
 - [ ] add calendar :star::star::star::star:
 - [x] add alarm :star::star::star:
 - [ ] change theme color :star::star:
