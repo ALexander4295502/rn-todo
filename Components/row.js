@@ -14,6 +14,7 @@ import {
   MKProgress,
 } from 'react-native-material-kit';
 
+import Icon from 'react-native-vector-icons/Ionicons';
 import moment from 'moment';
 
 export default class Row extends Component {
@@ -31,6 +32,15 @@ export default class Row extends Component {
     };
     this.remainTimeTextGenerate = this.remainTimeTextGenerate.bind(this);
     this.remainTimeProgress = this.remainTimeProgress.bind(this);
+  }
+
+  todoTypeIconGenerate(){
+    if(this.props.type === 'None')
+      return (<Icon name="md-done-all" size={14} color={this.props.theme.primaryColor} />);
+    if(this.props.type === 'Work')
+      return (<Icon name="ios-book" size={14} color={this.props.theme.primaryColor} />);
+    if(this.props.type === 'Life')
+      return (<Icon name="md-basket" size={14} color={this.props.theme.primaryColor} />);
   }
 
   componentDidMount() {
@@ -81,7 +91,6 @@ export default class Row extends Component {
   }
 
   render() {
-    console.log(this.state.timeRemain.asMilliseconds(), this.props.timeUp);
     const animatedRowStyle = [
       {opacity: this.animatedValue},
       {
@@ -131,7 +140,8 @@ export default class Row extends Component {
         <Text style={[styles.text, complete && styles.complete]}>
           {this.props.text}
         </Text>
-        <View style={styles.timeView}>
+        <View style={styles.metaView}>
+          {this.todoTypeIconGenerate()}
           <Text style={styles.timeText}>
             {
               this.props.ddl === "" ?
@@ -206,7 +216,7 @@ const styles = StyleSheet.create({
   progressWrap: {
     flex: 1,
     flexDirection: 'row',
-    marginTop: 8,
+    marginTop: 3,
     alignItems: 'center'
   },
   progressText: {
@@ -245,12 +255,14 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "#CC9A9A"
   },
-  timeView: {
-    marginTop: 5
+  metaView: {
+    marginTop: 5,
+    flexDirection: 'row',
   },
   timeText: {
     fontSize: 10,
-    color: "#CC9A9A"
+    color: "#CC9A9A",
+    marginLeft: 10,
   },
   buttonWrap: {
     flexDirection: 'column',

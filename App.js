@@ -31,12 +31,15 @@ import Footer from './Components/footer';
 import Header from './Components/header';
 import Row from './Components/row';
 
-const filterItems = (filter, items) => {
+const filterItems = (items, statusFilter, typeFilter) => {
   if(items === null) return [];
   return items.filter((item) => {
-    if(filter === 'ALL') return true;
-    if(filter === 'COMPLETED') return item.complete;
-    if(filter === 'ACTIVE') return !item.complete;
+    if (typeFilter === 'None') return true;
+    else return item.type === typeFilter;
+  }).filter((item) => {
+    if(statusFilter === 'ALL') return true;
+    if(statusFilter === 'COMPLETED') return item.complete;
+    if(statusFilter === 'ACTIVE') return !item.complete;
   })
 };
 
@@ -61,16 +64,17 @@ export default class App extends Component<{}> {
       allComplete: false,
       dataSource: [],
       showDatePicker: false,
-      filter: 'ALL',
+      statusFilter: 'ALL',
       showTimePicker: false,
       showDateValue: "",
       visible: false,
+      todoType: 'None',
+      typeFilter: 'None',
     };
     this.handleToggleComplete = this.handleToggleComplete.bind(this);
-    this.handleToggleAllComplete = this.handleToggleAllComplete.bind(this);
     this.handleAddItem = this.handleAddItem.bind(this);
     this.handleRemoveItem = this.handleRemoveItem.bind(this);
-    this.handleFilter = this.handleFilter.bind(this);
+    this.handleStatusFilter = this.handleStatusFilter.bind(this);
     this.handleClearComplete = this.handleClearComplete.bind(this);
     this.handleUpdateText = this.handleUpdateText.bind(this);
     this.handleToggleEditing = this.handleToggleEditing.bind(this);
@@ -82,34 +86,25 @@ export default class App extends Component<{}> {
     this.formatDate = this.formatDate.bind(this);
     this.renderEmpty = this.renderEmpty.bind(this);
     this.handleTimeUp = this.handleTimeUp.bind(this);
+    this.handleTodoTypeChange = this.handleTodoTypeChange.bind(this);
+    this.handleTodoTypeFilter = this.handleTodoTypeFilter.bind(this);
 
     PushNotification.configure({
       // (optional) Called when Token is generated (iOS and Android)
       onRegister: function(token) {
         console.log( 'TOKEN:', token );
       },
-
       // (required) Called when a remote or local notification is opened or received
       onNotification: function(notification) {
         return;
       },
-
       // IOS ONLY (optional): default: all - Permissions to register.
       permissions: {
         alert: true,
         badge: true,
         sound: true
       },
-
-      // Should the initial notification be popped automatically
-      // default: true
       popInitialNotification: true,
-
-      /**
-       * (optional) default: true
-       * - Specified if permissions (ios) and token (android and ios) will requested or not,
-       * - if not, you must call PushNotificationsHandler.requestPermissions() later
-       */
       requestPermissions: true
     });
   }
@@ -158,7 +153,7 @@ export default class App extends Component<{}> {
         }
       }
     });
-    this.setSource(newItems, filterItems(this.state.filter, newItems));
+    this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter));
   }
 
   handleTimeUp(key){
@@ -172,7 +167,7 @@ export default class App extends Component<{}> {
         }
       }
     });
-    this.setSource(newItems, filterItems(this.state.filter, newItems));
+    this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter));
   }
 
   // TODO: modify content should also update notification message
@@ -187,7 +182,7 @@ export default class App extends Component<{}> {
         }
       }
     });
-    this.setSource(newItems, filterItems(this.state.filter, newItems));
+    this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter));
   }
 
   handleAddItem() {
@@ -204,20 +199,10 @@ export default class App extends Component<{}> {
         complete: false,
         editing: false,
         timeUp: false,
+        type: this.state.todoType
       }
     ];
-    this.setSource(newItems, filterItems(this.state.filter, newItems), {value: "", showDateValue: ""});
-  }
-
-  handleToggleAllComplete(){
-    const complete = !this.state.allComplete;
-    if(this.state.items === null) return;
-    const newItems = this.state.items.map((item) => ({
-      ...item,
-      complete
-    }));
-    // console.table(newItems);
-    this.setSource(newItems, filterItems(this.state.filter, newItems), {allComplete: complete});
+    this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter), {value: "", showDateValue: ""});
   }
 
   handleToggleComplete(key, complete){
@@ -229,23 +214,27 @@ export default class App extends Component<{}> {
         complete: _complete
       };
     });
-    this.setSource(newItems, filterItems(this.state.filter, newItems));
+    this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter));
   }
 
   handleRemoveItem(key) {
     const newItems = this.state.items.filter((item) => {
       return item.key !== key;
     });
-    this.setSource(newItems, filterItems(this.state.filter, newItems));
+    this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter));
   }
 
-  handleFilter(filter) {
-    this.setSource(this.state.items, filterItems(filter, this.state.items), {filter});
+  handleStatusFilter(statusFilter) {
+    this.setSource(this.state.items, filterItems(this.state.items, statusFilter, this.state.typeFilter), {statusFilter});
+  }
+
+  handleTodoTypeFilter(typeFilter) {
+    this.setSource(this.state.items, filterItems(this.state.items, this.state.statusFilter, typeFilter), {typeFilter});
   }
 
   handleClearComplete(){
-    const newItems = filterItems("ACTIVE", this.state.items);
-    this.setSource(newItems, filterItems(this.state.filter, newItems));
+    const newItems = filterItems(this.state.items, "ACTIVE", this.state.typeFilter);
+    this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter));
   }
 
   handleHeaderInputChange(_value){
@@ -265,7 +254,7 @@ export default class App extends Component<{}> {
         }
       }
     });
-    this.setSource(newItems, filterItems(this.state.filter, newItems));
+    this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter));
   }
 
   handleShowTimePicker() {
@@ -284,7 +273,14 @@ export default class App extends Component<{}> {
       showDateValue: this.formatDate(date)
     });
     this._hideDateTimePicker();
-  };
+  }
+
+  handleTodoTypeChange(type){
+    this.setState({
+      todoType: type
+    });
+    console.log("todotype change to ", type);
+  }
 
   formatDate(date){
     return date === null ?
@@ -309,11 +305,12 @@ export default class App extends Component<{}> {
           value={this.state.value}
           onAddItem={this.handleAddItem}
           onChange={(value) => this.handleHeaderInputChange(value)}
-          onToggleAllComplete={this.handleToggleAllComplete}
           primaryColor={theme.primaryColor}
           showDatePicker={this.handleShowTimePicker}
           showDatePickerFlag={this.state.showDatePicker}
           showDateValue={this.state.showDateValue}
+          todoType={this.state.todoType}
+          todoTypeChange={this.handleTodoTypeChange}
         />
         <View style={styles.content}>
           {this.state.items.length === 0 ?
@@ -358,11 +355,13 @@ export default class App extends Component<{}> {
           mode="datetime"
         />
         <Footer
-          filter={this.state.filter}
-          onFilter={this.handleFilter}
+          statusFilter={this.state.statusFilter}
+          typeFilter={this.state.typeFilter}
+          onStatusFilter={this.handleStatusFilter}
+          onTypeFilter={this.handleTodoTypeFilter}
           onClearComplete={this.handleClearComplete}
-          count={filterItems("ACTIVE", this.state.items).length}
-          primaryColor={theme.primaryColor}
+          count={filterItems(this.state.items, "ACTIVE", this.state.typeFilter).length}
+          theme={theme}
         />
         {this.state.loading && <View style={styles.loading}>
           <MKSpinner style={styles.spinner}/>

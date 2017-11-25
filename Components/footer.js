@@ -11,9 +11,29 @@ import {
   MKButton,
 } from 'react-native-material-kit';
 
+import ActionButton from 'react-native-action-button';
+import Icon from 'react-native-vector-icons/Ionicons';
+// Get cheat sheet here:
+// https://infinitered.github.io/ionicons-version-3-search/
+
 export default class Footer extends Component {
+
+  constructor(props){
+    super(props);
+    this.todoTypeIconGenerate = this.todoTypeIconGenerate.bind(this);
+  }
+
+  todoTypeIconGenerate(){
+    if(this.props.typeFilter === 'None')
+      return (<Icon name="md-done-all" color="#fff" size={20}/>);
+    if(this.props.typeFilter === 'Work')
+      return (<Icon name="ios-book" color="#fff" size={20}/>);
+    if(this.props.typeFilter === 'Life')
+      return (<Icon name="md-basket" color="#fff" size={20}/>);
+  }
+
   render() {
-    const {filter} = this.props;
+    const {statusFilter} = this.props;
     const ClearAllButton = MKButton.coloredButton()
       .withText("Clear all\n completed")
       .withOnPress(() => {
@@ -26,35 +46,77 @@ export default class Footer extends Component {
       })
       .build();
     const fontColor= {
-      color: this.props.primaryColor
+      color: this.props.theme.primaryColor
     };
     return (
       <View style={styles.container}>
-        <Text style={[styles.count, fontColor]}>{this.props.count} todo</Text>
+        {/*<Text style={[styles.count, fontColor]}>{this.props.count} todo</Text>*/}
         <View style={styles.filters}>
+          <View style={styles.actionButtonWrap}>
+            <ActionButton
+              buttonColor={this.props.theme.primaryColor}
+              position="left"
+              offsetX={0}
+              offsetY={0}
+              size={40}
+              icon={this.todoTypeIconGenerate()}
+              shadowStyle={{
+                  shadowOpacity: 0.7,
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 0.5
+                  },
+              }}
+            >
+              <ActionButton.Item
+                buttonColor='#9b59b6'
+                title="Life"
+                onPress={() => this.props.onTypeFilter("Life")}
+              >
+                <Icon name="md-basket" style={styles.actionButtonIcon} />
+              </ActionButton.Item>
+              <ActionButton.Item
+                buttonColor='#3498db'
+                title="Work"
+                onPress={() => this.props.onTypeFilter("Work")}
+              >
+                <Icon name="ios-book" style={styles.actionButtonIcon} />
+              </ActionButton.Item>
+              <ActionButton.Item
+                buttonColor='#1abc9c'
+                title="All"
+                onPress={() => this.props.onTypeFilter("None")}
+              >
+                <Icon name="md-done-all" style={styles.actionButtonIcon} />
+              </ActionButton.Item>
+            </ActionButton>
+          </View>
           <View style={styles.buttonWrap}>
             <MKRadioButton
-              checked={filter === "ALL"}
-              onCheckedChange={() => this.props.onFilter("ALL")}
+              checked={statusFilter === "ALL"}
+              onCheckedChange={() => this.props.onStatusFilter("ALL")}
             />
             <Text style={[styles.buttonText, fontColor]}>ALL</Text>
           </View>
           <View style={styles.buttonWrap}>
             <MKRadioButton
-              checked={filter === "ACTIVE"}
-              onCheckedChange={() => this.props.onFilter("ACTIVE")}
+              checked={statusFilter === "ACTIVE"}
+              onCheckedChange={() => this.props.onStatusFilter("ACTIVE")}
             />
             <Text style={[styles.buttonText, fontColor]}>ACTIVE</Text>
           </View>
           <View style={styles.buttonWrap}>
             <MKRadioButton
-              checked={filter === "COMPLETED"}
-              onCheckedChange={() => this.props.onFilter("COMPLETED")}
+              checked={statusFilter === "COMPLETED"}
+              onCheckedChange={() => this.props.onStatusFilter("COMPLETED")}
             />
             <Text style={[styles.buttonText, fontColor]}>COMPLETE</Text>
           </View>
+          <View style={styles.clearButtonWrap}>
+            <ClearAllButton />
+          </View>
         </View>
-        <ClearAllButton />
       </View>
     );
   }
@@ -65,16 +127,34 @@ const styles = StyleSheet.create({
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between'
+    justifyContent: 'space-around'
   },
   filters: {
     flexDirection: 'row',
+  },
+  actionButtonWrap: {
+    alignSelf: 'flex-start',
+    flex: 1,
+    marginTop: 7,
+    marginLeft: 15,
+  },
+  actionButtonIcon: {
+    fontSize: 20,
+    height: 22,
+    color: 'white',
+  },
+  actionButtonText: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   filter: {
     padding: 4,
     borderRadius: 5,
     borderWidth: 1,
-    borderColor: 'transparent'
+    borderColor: 'transparent',
+    justifyContent: 'space-around',
+    alignItems: 'center',
   },
   count: {
     fontWeight: 'bold'
@@ -84,6 +164,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     justifyContent: 'center',
     alignItems: 'center'
+  },
+  clearButtonWrap: {
+    marginHorizontal: 10,
   },
   buttonText: {
     fontWeight: 'bold',
