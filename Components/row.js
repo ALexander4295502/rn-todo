@@ -36,11 +36,17 @@ export default class Row extends Component {
 
   todoTypeIconGenerate(){
     if(this.props.type === 'None')
-      return (<Icon name="md-done-all" size={14} color={this.props.theme.primaryColor} />);
+      return (
+        <Icon name="md-done-all" style={styles.iconStyle} size={14} color={this.props.theme.primaryColor} />
+      );
     if(this.props.type === 'Work')
-      return (<Icon name="ios-book" size={14} color={this.props.theme.primaryColor} />);
+      return (
+        <Icon name="ios-book" style={styles.iconStyle} size={14} color={this.props.theme.primaryColor} />
+      );
     if(this.props.type === 'Life')
-      return (<Icon name="md-basket" size={14} color={this.props.theme.primaryColor} />);
+      return (
+        <Icon name="md-basket" style={styles.iconStyle} size={14} color={this.props.theme.primaryColor} />
+      );
   }
 
   componentDidMount() {
@@ -137,7 +143,11 @@ export default class Row extends Component {
         style={styles.textWrap}
         onLongPress={() => this.props.onToggleEdit(true)}
       >
-        <Text style={[styles.text, complete && styles.complete]}>
+        <Text style={[
+          this.props.theme.cardContentStyle,
+          {marginTop: -10, marginLeft: -10},
+          complete && styles.complete
+        ]}>
           {this.props.text}
         </Text>
         <View style={styles.metaView}>
@@ -177,7 +187,12 @@ export default class Row extends Component {
           onChangeText={this.props.onUpdate}
           autoFocus
           value={this.props.text}
-          style={styles.input}
+          style={
+            [
+              this.props.theme.cardContentStyle,
+              {marginTop: -1, marginLeft: -10},
+            ]
+          }
           returnKeyType='done'
           multiline
         />
@@ -258,6 +273,9 @@ const styles = StyleSheet.create({
   metaView: {
     marginTop: 5,
     flexDirection: 'row',
+  },
+  iconStyle: {
+    marginTop: -2,
   },
   timeText: {
     fontSize: 10,

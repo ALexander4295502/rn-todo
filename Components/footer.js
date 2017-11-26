@@ -50,7 +50,6 @@ export default class Footer extends Component {
     };
     return (
       <View style={styles.container}>
-        {/*<Text style={[styles.count, fontColor]}>{this.props.count} todo</Text>*/}
         <View style={styles.filters}>
           <View style={styles.actionButtonWrap}>
             <ActionButton
@@ -70,22 +69,41 @@ export default class Footer extends Component {
               }}
             >
               <ActionButton.Item
-                buttonColor='#9b59b6'
-                title="Life"
+                buttonColor='#e35183'
+                title="Calendar"
+                textStyle={{
+                  minWidth: 54,
+                }}
+                onPress={() => this.props.onNavigation('calendar')}
+              >
+                <Icon name="ios-calendar" style={styles.actionButtonIcon} />
+              </ActionButton.Item>
+              <ActionButton.Item
+                buttonColor={this.props.theme.lightColor}
+                title={`Life (${this.props.lifeCount})`}
+                textStyle={{
+                  minWidth: (`Life (${this.props.lifeCount})`).length*5,
+                }}
                 onPress={() => this.props.onTypeFilter("Life")}
               >
                 <Icon name="md-basket" style={styles.actionButtonIcon} />
               </ActionButton.Item>
               <ActionButton.Item
-                buttonColor='#3498db'
-                title="Work"
+                buttonColor={this.props.theme.lightColor}
+                title={`Work (${this.props.workCount})`}
+                textStyle={{
+                  minWidth: (`Work (${this.props.workCount})`).length*6.5,
+                }}
                 onPress={() => this.props.onTypeFilter("Work")}
               >
                 <Icon name="ios-book" style={styles.actionButtonIcon} />
               </ActionButton.Item>
               <ActionButton.Item
-                buttonColor='#1abc9c'
-                title="All"
+                buttonColor={this.props.theme.lightColor}
+                title={`All (${this.props.allCount})`}
+                textStyle={{
+                  minWidth: (`All (${this.props.allCount})`).length*5,
+                }}
                 onPress={() => this.props.onTypeFilter("None")}
               >
                 <Icon name="md-done-all" style={styles.actionButtonIcon} />

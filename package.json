@@ -12,6 +12,7 @@
 		"react": "16.0.0",
 		"react-native": "0.50.3",
 		"react-native-action-button": "^2.8.2",
+		"react-native-calendars": "^1.14.2",
 		"react-native-material-dropdown": "^0.5.2",
 		"react-native-material-kit": "^0.5.1",
 		"react-native-modal-datetime-picker": "^4.13.0",
