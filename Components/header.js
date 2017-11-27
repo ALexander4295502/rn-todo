@@ -13,6 +13,8 @@ import {
   getTheme
 } from 'react-native-material-kit';
 
+import {Dropdown} from 'react-native-material-dropdown';
+
 export default class Header extends Component {
 
   constructor(props){
@@ -23,20 +25,24 @@ export default class Header extends Component {
   }
 
   render() {
+    let data = [
+      {value: 'None'},
+      {value: 'Life'},
+      {value: 'Work'},
+    ];
     // TODO: here we use TextInput instead of MKTextInput because of:
     // https://github.com/xinthink/react-native-material-kit/issues/369
     return (
       <View style={styles.header}>
-        <TouchableOpacity
-          onPress={this.props.onToggleAllComplete}
-          style={styles.toggleButton}
-        >
-          <Text
-            style={[styles.toggleIcon, {color: this.props.primaryColor}]}
-          >
-            {String.fromCharCode(10003)}
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.dropDownWrap}>
+          <Dropdown
+            label="todo type"
+            data={data}
+            dropdownPosition={-4.3}
+            value={this.props.todoType}
+            onChangeText={this.props.todoTypeChange}
+          />
+        </View>
         <View style={styles.input}>
           <TextInput
             value={this.props.value}
@@ -77,13 +83,13 @@ export default class Header extends Component {
 const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
-    alignItems: 'center'
+    alignItems: 'center',
+    flex: 0.08,
   },
-  toggleIcon: {
-    fontSize: 30,
-  },
-  toggleButton: {
+  dropDownWrap: {
+    flex: 0.35,
     marginHorizontal: 10,
+    marginBottom: 20,
   },
   datePickerText: {
     fontWeight: 'bold',
@@ -102,9 +108,9 @@ const styles = StyleSheet.create({
   },
   datePickerButton: {
     height: 35,
-    width: 100,
+    flex: 0.5,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 5,
+    marginBottom: 4,
   }
 });

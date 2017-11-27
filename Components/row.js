@@ -11,8 +11,10 @@ import {
 import {
   MKCheckbox,
   MKButton,
+  MKProgress,
 } from 'react-native-material-kit';
 
+import Icon from 'react-native-vector-icons/Ionicons';
 import moment from 'moment';
 
 export default class Row extends Component {
@@ -20,13 +22,78 @@ export default class Row extends Component {
   constructor(props){
     super(props);
     this.animatedValue = new Animated.Value(0);
+    this.state = {
+      timeRemain: moment.duration(
+        moment().diff(moment(this.props.date, 'MM-DD-YYYY h:mm:ss a'))
+      ),
+      totalTime: moment.duration(
+        moment(this.props.ddl, 'MM-DD-YYYY h:mm:ss a').diff(moment(this.props.date, 'MM-DD-YYYY h:mm:ss a'))
+      ),
+    };
+    this.remainTimeTextGenerate = this.remainTimeTextGenerate.bind(this);
+    this.remainTimeProgress = this.remainTimeProgress.bind(this);
+  }
+
+  todoTypeIconGenerate(){
+    if(this.props.type === 'None')
+      return (
+        <Icon name="md-done-all" style={styles.iconStyle} size={14} color={this.props.theme.primaryColor} />
+      );
+    if(this.props.type === 'Work')
+      return (
+        <Icon name="ios-book" style={styles.iconStyle} size={14} color={this.props.theme.primaryColor} />
+      );
+    if(this.props.type === 'Life')
+      return (
+        <Icon name="md-basket" style={styles.iconStyle} size={14} color={this.props.theme.primaryColor} />
+      );
   }
 
   componentDidMount() {
     Animated.timing(this.animatedValue, {
       toValue: 1,
       duration: 250,
-    }).start()
+    }).start();
+
+    if(this.props.ddl !== ""){
+      setInterval( () => {
+        if(this.props.timeUp || this.props.complete){
+        } else {
+          if(parseInt(this.state.timeRemain.asMilliseconds()) < 0){
+            this.props.onTimeUp();
+            return;
+          }
+          this.setState({
+            timeRemain : moment.duration(
+              moment(this.props.ddl, 'MM-DD-YYYY h:mm:ss a').diff(moment())
+            )
+          })
+        }
+      },1000)
+    }
+  }
+
+  remainTimeTextGenerate(remainTime){
+    if(this.props.timeUp) return "time up";
+    if(this.props.complete) return "completed!";
+    if(parseInt(remainTime.asDays()) > 0)
+      return parseInt(remainTime.asDays()) + " days left";
+    else if(parseInt(remainTime.asHours()) > 0)
+      return parseInt(remainTime.asHours()) + " hours left";
+    else if(parseInt(remainTime.asMinutes()) > 0)
+      return parseInt(remainTime.asMinutes()) + " minutes left";
+    else if(parseInt(remainTime.asSeconds()) > 0)
+      return parseInt(remainTime.asSeconds()) + " seconds left";
+    return "loading";
+  }
+
+  remainTimeProgress(remainTime){
+    if(this.props.complete) return 0;
+    if(this.props.timeUp) return 1.0;
+    return Math.min(
+      1.0,
+      1.0 - parseInt(remainTime.asMilliseconds())/parseInt(this.state.totalTime.asMilliseconds())
+    );
   }
 
   render() {
@@ -71,26 +138,46 @@ export default class Row extends Component {
       })
       .build();
     const {complete} = this.props;
-    console.log(this.props.ddl);
     const textComponent = (
       <TouchableOpacity
         style={styles.textWrap}
         onLongPress={() => this.props.onToggleEdit(true)}
       >
-        <Text style={[styles.text, complete && styles.complete]}>
+        <Text style={[
+          this.props.theme.cardContentStyle,
+          {marginTop: -10, marginLeft: -10},
+          complete && styles.complete
+        ]}>
           {this.props.text}
         </Text>
-        <View style={styles.timeView}>
+        <View style={styles.metaView}>
+          {this.todoTypeIconGenerate()}
           <Text style={styles.timeText}>
             {
               this.props.ddl === "" ?
                 "No deadline" :
                 "DDL: " + moment(
-                  this.props.ddl, 'MM-DD-YYYY h:mm a'
+                  this.props.ddl, 'MM-DD-YYYY h:mm:ss a'
                 ).calendar()
             }
           </Text>
         </View>
+        {this.props.ddl === "" ? null :
+          <View style={styles.progressWrap}>
+            <MKProgress
+              progress={this.remainTimeProgress(this.state.timeRemain)}
+              style={styles.progressBar}
+            />
+            <Text
+              style={[
+                styles.progressText,
+                {color: this.props.theme.primaryColor}
+              ]}
+            >
+              {this.remainTimeTextGenerate(this.state.timeRemain)}
+            </Text>
+          </View>
+        }
       </TouchableOpacity>
     );
 
@@ -100,7 +187,12 @@ export default class Row extends Component {
           onChangeText={this.props.onUpdate}
           autoFocus
           value={this.props.text}
-          style={styles.input}
+          style={
+            [
+              this.props.theme.cardContentStyle,
+              {marginTop: -1, marginLeft: -10},
+            ]
+          }
           returnKeyType='done'
           multiline
         />
@@ -120,7 +212,7 @@ export default class Row extends Component {
         <MKCheckbox
           checked={complete}
           onCheckedChange={this.props.onComplete}
-          borderOffColor={this.props.primaryColor}
+          borderOffColor={this.props.theme.primaryColor}
         />
         {this.props.editing ? editingComponent : textComponent}
         {this.props.editing ? editingButtons : <DeleteButton />}
@@ -135,6 +227,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between'
+  },
+  progressWrap: {
+    flex: 1,
+    flexDirection: 'row',
+    marginTop: 3,
+    alignItems: 'center'
+  },
+  progressText: {
+    marginLeft: 19,
+    fontSize: 12,
+    fontWeight: 'bold',
+    width: 80,
+    textAlign: 'center'
+  },
+  progressBar: {
+    width: 250
   },
   input: {
     flex: 1,
@@ -162,12 +270,17 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "#CC9A9A"
   },
-  timeView: {
-    marginTop: 10
+  metaView: {
+    marginTop: 5,
+    flexDirection: 'row',
+  },
+  iconStyle: {
+    marginTop: -2,
   },
   timeText: {
-    fontSize: 15,
-    color: "#CC9A9A"
+    fontSize: 10,
+    color: "#CC9A9A",
+    marginLeft: 10,
   },
   buttonWrap: {
     flexDirection: 'column',
