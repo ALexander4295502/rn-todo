@@ -112,7 +112,7 @@ export default class MainPage extends Component<{}> {
   componentWillMount() {
     AsyncStorage.getItem("items").then((json) => {
       try {
-        const items = JSON.parse(json);
+        const items = JSON.parse(json) || [];
         this.setSource(items, items, {loading: false});
       } catch (e) {
         console.error("Load storage error", e);
@@ -383,7 +383,7 @@ export default class MainPage extends Component<{}> {
           onTypeFilter={this.handleTodoTypeFilter}
           onClearComplete={this.handleClearComplete}
           allCount={filterItems(this.state.items, "ACTIVE", "None").length}
-          workCount={Math.min(0, filterItems(this.state.items, "ACTIVE", "Work").length)}
+          workCount={filterItems(this.state.items, "ACTIVE", "Work").length}
           lifeCount={filterItems(this.state.items, "ACTIVE", "Life").length}
           theme={theme}
           onNavigation={this.handleNavigation}
