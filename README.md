@@ -2,9 +2,10 @@
 ## Todo 
 - [x] add the DDL :star::star::star::star:
 - [x] add the class for different event :star::star::star:
-- [ ] add calendar :star::star::star::star:
+- [x] add calendar :star::star::star::star:
 - [x] add alarm :star::star::star:
 - [ ] change theme color :star::star:
+- [ ] add todo suggestion :star::star::star:
 
 
 ## Tests
