@@ -5,10 +5,6 @@ import {
   StyleSheet
 } from 'react-native';
 
-import {
-  MKSpinner
-} from 'react-native-material-kit';
-
 import {Agenda} from 'react-native-calendars';
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -27,7 +23,6 @@ export default class Calendar extends Component {
       items: {
         ...this.props.items
       },
-      loading: false
     };
     this.generateMarkedDots();
   }
@@ -85,20 +80,11 @@ export default class Calendar extends Component {
             agendaTodayColor: this.props.theme.primaryColor,
           }}
         />
-        {
-          this.state.loading &&
-          <View style={styles.loading} pointerEvents="none">
-            <MKSpinner style={styles.spinner}/>
-          </View>
-        }
       </View>
     );
   }
 
   loadItems(day) {
-    this.setState({
-      loading: true,
-    });
     setTimeout(() => {
       for (let i = -15; i < 85; i++) {
         const time = day.timestamp + i * 24 * 60 * 60 * 1000;
@@ -170,15 +156,5 @@ const styles = StyleSheet.create({
     height: 15,
     flex:1,
     paddingTop: 30
-  },
-  loading: {
-    position: "absolute",
-    left: 0,
-    top: 0,
-    right: 0,
-    bottom: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
   },
 });
