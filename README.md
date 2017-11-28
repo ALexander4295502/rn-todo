@@ -6,6 +6,7 @@
 - [x] add alarm :star::star::star:
 - [ ] change theme color :star::star:
 - [ ] add todo suggestion :star::star::star:
+- [ ] add time period attributes for todo :star::star::star:
 
 
 ## Tests
