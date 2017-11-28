@@ -10,7 +10,6 @@ import {
 } from 'react-native-material-kit';
 
 import Icon from 'react-native-vector-icons/Ionicons';
-import moment from 'moment';
 
 const theme = getTheme();
 

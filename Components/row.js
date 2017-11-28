@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   TextInput,
   Animated,
+  Dimensions
 } from 'react-native';
 
 import {
@@ -16,6 +17,8 @@ import {
 
 import Icon from 'react-native-vector-icons/Ionicons';
 import moment from 'moment';
+
+const { width, height } = Dimensions.get('window');
 
 export default class Row extends Component {
 
@@ -235,14 +238,14 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   progressText: {
-    marginLeft: 19,
-    fontSize: 12,
+    marginLeft: 0.01*width,
+    fontSize: 0.03*width,
     fontWeight: 'bold',
-    width: 80,
+    width: 0.2*width,
     textAlign: 'center'
   },
   progressBar: {
-    width: 250
+    width: 0.6*width,
   },
   input: {
     flex: 1,
@@ -288,7 +291,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginVertical: 5,
-    height: 33,
-    width: 74,
+    height: 0.05*height,
+    width: 0.2*width,
   }
 });

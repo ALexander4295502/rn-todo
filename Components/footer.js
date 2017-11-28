@@ -3,7 +3,7 @@ import {
   StyleSheet,
   View,
   Text,
-  TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 
 import {
@@ -15,6 +15,8 @@ import ActionButton from 'react-native-action-button';
 import Icon from 'react-native-vector-icons/Ionicons';
 // Get cheat sheet here:
 // https://infinitered.github.io/ionicons-version-3-search/
+
+const { width, height } = Dimensions.get('window');
 
 export default class Footer extends Component {
 
@@ -60,11 +62,12 @@ export default class Footer extends Component {
               size={40}
               icon={this.todoTypeIconGenerate()}
               shadowStyle={{
-                  shadowOpacity: 0.7,
+                  shadowOpacity: 0.45,
                   shadowColor: '#000',
+                  shadowRadius: 1,
                   shadowOffset: {
                     width: 0,
-                    height: 0.5
+                    height: 4
                   },
               }}
             >
@@ -82,7 +85,7 @@ export default class Footer extends Component {
                 buttonColor={this.props.theme.lightColor}
                 title={`Life (${this.props.lifeCount})`}
                 textStyle={{
-                  minWidth: (`Life (${this.props.lifeCount})`).length*5,
+                  minWidth: (`Life (${this.props.lifeCount})`).length*0.015*width,
                 }}
                 onPress={() => this.props.onTypeFilter("Life")}
               >
@@ -92,7 +95,7 @@ export default class Footer extends Component {
                 buttonColor={this.props.theme.lightColor}
                 title={`Work (${this.props.workCount})`}
                 textStyle={{
-                  minWidth: (`Work (${this.props.workCount})`).length*6.5,
+                  minWidth: (`Work (${this.props.workCount})`).length*0.017*width,
                 }}
                 onPress={() => this.props.onTypeFilter("Work")}
               >
@@ -102,7 +105,7 @@ export default class Footer extends Component {
                 buttonColor={this.props.theme.lightColor}
                 title={`All (${this.props.allCount})`}
                 textStyle={{
-                  minWidth: (`All (${this.props.allCount})`).length*5,
+                  minWidth: (`All (${this.props.allCount})`).length*0.015*width,
                 }}
                 onPress={() => this.props.onTypeFilter("None")}
               >
@@ -142,19 +145,20 @@ export default class Footer extends Component {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 0.1,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around'
+    justifyContent: 'center'
   },
   filters: {
     flexDirection: 'row',
+    justifyContent: 'space-around'
   },
   actionButtonWrap: {
-    alignSelf: 'flex-start',
-    flex: 1,
-    marginTop: 7,
-    marginLeft: 15,
+    top: -0.12*width,
+    paddingBottom: 0.1*width,
+    paddingHorizontal: 0.04*width
   },
   actionButtonIcon: {
     fontSize: 20,
@@ -179,12 +183,12 @@ const styles = StyleSheet.create({
   },
   buttonWrap: {
     flexDirection: 'column',
-    marginHorizontal: 10,
+    paddingLeft: 0.08*width,
     justifyContent: 'center',
     alignItems: 'center'
   },
   clearButtonWrap: {
-    marginHorizontal: 10,
+    paddingLeft: 0.08*width,
   },
   buttonText: {
     fontWeight: 'bold',
