@@ -16,21 +16,21 @@ import Icon from 'react-native-vector-icons/Ionicons';
 // Get cheat sheet here:
 // https://infinitered.github.io/ionicons-version-3-search/
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 export default class Footer extends Component {
 
-  constructor(props){
+  constructor(props) {
     super(props);
     this.todoTypeIconGenerate = this.todoTypeIconGenerate.bind(this);
   }
 
-  todoTypeIconGenerate(){
-    if(this.props.typeFilter === 'None')
+  todoTypeIconGenerate() {
+    if (this.props.typeFilter === 'None')
       return (<Icon name="md-done-all" color="#fff" size={20}/>);
-    if(this.props.typeFilter === 'Work')
+    if (this.props.typeFilter === 'Work')
       return (<Icon name="ios-book" color="#fff" size={20}/>);
-    if(this.props.typeFilter === 'Life')
+    if (this.props.typeFilter === 'Life')
       return (<Icon name="md-basket" color="#fff" size={20}/>);
   }
 
@@ -47,7 +47,7 @@ export default class Footer extends Component {
         textAlign: 'center'
       })
       .build();
-    const fontColor= {
+    const fontColor = {
       color: this.props.theme.primaryColor
     };
     return (
@@ -62,13 +62,13 @@ export default class Footer extends Component {
               size={40}
               icon={this.todoTypeIconGenerate()}
               shadowStyle={{
-                  shadowOpacity: 0.45,
-                  shadowColor: '#000',
-                  shadowRadius: 1,
-                  shadowOffset: {
-                    width: 0,
-                    height: 4
-                  },
+                shadowOpacity: 0.45,
+                shadowColor: '#000',
+                shadowRadius: 1,
+                shadowOffset: {
+                  width: 0,
+                  height: 4
+                },
               }}
             >
               <ActionButton.Item
@@ -79,37 +79,37 @@ export default class Footer extends Component {
                 }}
                 onPress={() => this.props.onNavigation('calendar')}
               >
-                <Icon name="ios-calendar" style={styles.actionButtonIcon} />
+                <Icon name="ios-calendar" style={styles.actionButtonIcon}/>
               </ActionButton.Item>
               <ActionButton.Item
                 buttonColor={this.props.theme.lightColor}
                 title={`Life (${this.props.lifeCount})`}
                 textStyle={{
-                  minWidth: (`Life (${this.props.lifeCount})`).length*0.015*width,
+                  minWidth: (`Life (${this.props.lifeCount})`).length * 0.015 * width,
                 }}
                 onPress={() => this.props.onTypeFilter("Life")}
               >
-                <Icon name="md-basket" style={styles.actionButtonIcon} />
+                <Icon name="md-basket" style={styles.actionButtonIcon}/>
               </ActionButton.Item>
               <ActionButton.Item
                 buttonColor={this.props.theme.lightColor}
                 title={`Work (${this.props.workCount})`}
                 textStyle={{
-                  minWidth: (`Work (${this.props.workCount})`).length*0.017*width,
+                  minWidth: (`Work (${this.props.workCount})`).length * 0.017 * width,
                 }}
                 onPress={() => this.props.onTypeFilter("Work")}
               >
-                <Icon name="ios-book" style={styles.actionButtonIcon} />
+                <Icon name="ios-book" style={styles.actionButtonIcon}/>
               </ActionButton.Item>
               <ActionButton.Item
                 buttonColor={this.props.theme.lightColor}
                 title={`All (${this.props.allCount})`}
                 textStyle={{
-                  minWidth: (`All (${this.props.allCount})`).length*0.015*width,
+                  minWidth: (`All (${this.props.allCount})`).length * 0.015 * width,
                 }}
                 onPress={() => this.props.onTypeFilter("None")}
               >
-                <Icon name="md-done-all" style={styles.actionButtonIcon} />
+                <Icon name="md-done-all" style={styles.actionButtonIcon}/>
               </ActionButton.Item>
             </ActionButton>
           </View>
@@ -135,7 +135,7 @@ export default class Footer extends Component {
             <Text style={[styles.buttonText, fontColor]}>COMPLETE</Text>
           </View>
           <View style={styles.clearButtonWrap}>
-            <ClearAllButton />
+            <ClearAllButton/>
           </View>
         </View>
       </View>
@@ -156,9 +156,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around'
   },
   actionButtonWrap: {
-    top: -0.12*width,
-    paddingBottom: 0.1*width,
-    paddingHorizontal: 0.04*width
+    top: -0.12 * width,
+    paddingBottom: 0.1 * width,
+    paddingHorizontal: 0.04 * width
   },
   actionButtonIcon: {
     fontSize: 20,
@@ -183,12 +183,12 @@ const styles = StyleSheet.create({
   },
   buttonWrap: {
     flexDirection: 'column',
-    paddingLeft: 0.08*width,
+    paddingLeft: 0.08 * width,
     justifyContent: 'center',
     alignItems: 'center'
   },
   clearButtonWrap: {
-    paddingLeft: 0.08*width,
+    paddingLeft: 0.08 * width,
   },
   buttonText: {
     fontWeight: 'bold',

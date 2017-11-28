@@ -17,9 +17,9 @@ import {Dropdown} from 'react-native-material-dropdown';
 
 export default class Header extends Component {
 
-  constructor(props){
+  constructor(props) {
     super(props);
-    this.state={
+    this.state = {
       isDateTimePickerVisible: false,
     };
   }

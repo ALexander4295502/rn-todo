@@ -18,11 +18,11 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import moment from 'moment';
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 export default class Row extends Component {
 
-  constructor(props){
+  constructor(props) {
     super(props);
     this.animatedValue = new Animated.Value(0);
     this.state = {
@@ -37,18 +37,18 @@ export default class Row extends Component {
     this.remainTimeProgress = this.remainTimeProgress.bind(this);
   }
 
-  todoTypeIconGenerate(){
-    if(this.props.type === 'None')
+  todoTypeIconGenerate() {
+    if (this.props.type === 'None')
       return (
-        <Icon name="md-done-all" style={styles.iconStyle} size={14} color={this.props.theme.primaryColor} />
+        <Icon name="md-done-all" style={styles.iconStyle} size={14} color={this.props.theme.primaryColor}/>
       );
-    if(this.props.type === 'Work')
+    if (this.props.type === 'Work')
       return (
-        <Icon name="ios-book" style={styles.iconStyle} size={14} color={this.props.theme.primaryColor} />
+        <Icon name="ios-book" style={styles.iconStyle} size={14} color={this.props.theme.primaryColor}/>
       );
-    if(this.props.type === 'Life')
+    if (this.props.type === 'Life')
       return (
-        <Icon name="md-basket" style={styles.iconStyle} size={14} color={this.props.theme.primaryColor} />
+        <Icon name="md-basket" style={styles.iconStyle} size={14} color={this.props.theme.primaryColor}/>
       );
   }
 
@@ -58,44 +58,44 @@ export default class Row extends Component {
       duration: 250,
     }).start();
 
-    if(this.props.ddl !== ""){
-      setInterval( () => {
-        if(this.props.timeUp || this.props.complete){
+    if (this.props.ddl !== "") {
+      setInterval(() => {
+        if (this.props.timeUp || this.props.complete) {
         } else {
-          if(parseInt(this.state.timeRemain.asMilliseconds()) < 0){
+          if (parseInt(this.state.timeRemain.asMilliseconds()) < 0) {
             this.props.onTimeUp();
             return;
           }
           this.setState({
-            timeRemain : moment.duration(
+            timeRemain: moment.duration(
               moment(this.props.ddl, 'MM-DD-YYYY h:mm:ss a').diff(moment())
             )
           })
         }
-      },1000)
+      }, 1000)
     }
   }
 
-  remainTimeTextGenerate(remainTime){
-    if(this.props.timeUp) return "time up";
-    if(this.props.complete) return "completed!";
-    if(parseInt(remainTime.asDays()) > 0)
+  remainTimeTextGenerate(remainTime) {
+    if (this.props.timeUp) return "time up";
+    if (this.props.complete) return "completed!";
+    if (parseInt(remainTime.asDays()) > 0)
       return parseInt(remainTime.asDays()) + " days left";
-    else if(parseInt(remainTime.asHours()) > 0)
+    else if (parseInt(remainTime.asHours()) > 0)
       return parseInt(remainTime.asHours()) + " hours left";
-    else if(parseInt(remainTime.asMinutes()) > 0)
+    else if (parseInt(remainTime.asMinutes()) > 0)
       return parseInt(remainTime.asMinutes()) + " minutes left";
-    else if(parseInt(remainTime.asSeconds()) > 0)
+    else if (parseInt(remainTime.asSeconds()) > 0)
       return parseInt(remainTime.asSeconds()) + " seconds left";
     return "loading";
   }
 
-  remainTimeProgress(remainTime){
-    if(this.props.complete) return 0;
-    if(this.props.timeUp) return 1.0;
+  remainTimeProgress(remainTime) {
+    if (this.props.complete) return 0;
+    if (this.props.timeUp) return 1.0;
     return Math.min(
       1.0,
-      1.0 - parseInt(remainTime.asMilliseconds())/parseInt(this.state.totalTime.asMilliseconds())
+      1.0 - parseInt(remainTime.asMilliseconds()) / parseInt(this.state.totalTime.asMilliseconds())
     );
   }
 
@@ -105,11 +105,13 @@ export default class Row extends Component {
       {
         transform: [
           {scale: this.animatedValue},
-          {rotate: this.animatedValue.interpolate({
-            inputRange: [0, 1],
-            outputRange: ['35deg', '0deg'],
-            extrapolate: 'clamp',
-          })}
+          {
+            rotate: this.animatedValue.interpolate({
+              inputRange: [0, 1],
+              outputRange: ['35deg', '0deg'],
+              extrapolate: 'clamp',
+            })
+          }
         ]
       }
     ];
@@ -137,7 +139,9 @@ export default class Row extends Component {
         Animated.timing(this.animatedValue, {
           toValue: 0,
           duration: 250,
-        }).start(() => {this.props.onRemove();})
+        }).start(() => {
+          this.props.onRemove();
+        })
       })
       .build();
     const {complete} = this.props;
@@ -160,7 +164,7 @@ export default class Row extends Component {
               this.props.ddl === "" ?
                 "No deadline" :
                 "DDL: " + moment(
-                  this.props.ddl, 'MM-DD-YYYY h:mm:ss a'
+                this.props.ddl, 'MM-DD-YYYY h:mm:ss a'
                 ).calendar()
             }
           </Text>
@@ -204,8 +208,8 @@ export default class Row extends Component {
 
     const editingButtons = (
       <View style={styles.buttonWrap}>
-        <SaveButton />
-        <CancelButton />
+        <SaveButton/>
+        <CancelButton/>
       </View>
     );
 
@@ -218,7 +222,7 @@ export default class Row extends Component {
           borderOffColor={this.props.theme.primaryColor}
         />
         {this.props.editing ? editingComponent : textComponent}
-        {this.props.editing ? editingButtons : <DeleteButton />}
+        {this.props.editing ? editingButtons : <DeleteButton/>}
       </Animated.View>
     );
   }
@@ -238,14 +242,14 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   progressText: {
-    marginLeft: 0.01*width,
-    fontSize: 0.03*width,
+    marginLeft: 0.01 * width,
+    fontSize: 0.03 * width,
     fontWeight: 'bold',
-    width: 0.2*width,
+    width: 0.2 * width,
     textAlign: 'center'
   },
   progressBar: {
-    width: 0.6*width,
+    width: 0.6 * width,
   },
   input: {
     flex: 1,
@@ -291,7 +295,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginVertical: 5,
-    height: 0.05*height,
-    width: 0.2*width,
+    height: 0.05 * height,
+    width: 0.2 * width,
   }
 });

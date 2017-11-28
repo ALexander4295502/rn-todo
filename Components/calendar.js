@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import {
   Text,
   View,
@@ -27,7 +27,7 @@ export default class Calendar extends Component {
     this.generateMarkedDots();
   }
 
-  generateMarkedDots(){
+  generateMarkedDots() {
     let markedDates = {};
     Object.keys(this.state.items).forEach((key) => {
       markedDates[key] = {dots: []};
@@ -94,7 +94,9 @@ export default class Calendar extends Component {
         }
       }
       const newItems = {};
-      Object.keys(this.state.items).forEach(key => {newItems[key] = this.state.items[key];});
+      Object.keys(this.state.items).forEach(key => {
+        newItems[key] = this.state.items[key];
+      });
       this.setState({
         items: newItems,
         loading: false,
@@ -154,7 +156,7 @@ const styles = StyleSheet.create({
   },
   emptyDate: {
     height: 15,
-    flex:1,
+    flex: 1,
     paddingTop: 30
   },
 });

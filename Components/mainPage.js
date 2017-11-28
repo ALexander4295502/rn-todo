@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import {
   StyleSheet,
   View,
@@ -27,14 +27,14 @@ import Row from './row';
 import Calendar from './calendar';
 
 const filterItems = (items, statusFilter, typeFilter) => {
-  if(items === null) return [];
+  if (items === null) return [];
   return items.filter((item) => {
     if (typeFilter === 'None') return true;
     else return item.type === typeFilter;
   }).filter((item) => {
-    if(statusFilter === 'ALL') return true;
-    if(statusFilter === 'COMPLETED') return item.complete;
-    if(statusFilter === 'ACTIVE') return !item.complete;
+    if (statusFilter === 'ALL') return true;
+    if (statusFilter === 'COMPLETED') return item.complete;
+    if (statusFilter === 'ACTIVE') return !item.complete;
   })
 };
 
@@ -53,7 +53,7 @@ const theme = {
 
 export default class MainPage extends Component<{}> {
 
-  constructor(props){
+  constructor(props) {
     console.ignoredYellowBox = ['Remote debugger'];
     super(props);
     this.state = {
@@ -91,11 +91,11 @@ export default class MainPage extends Component<{}> {
 
     PushNotification.configure({
       // (optional) Called when Token is generated (iOS and Android)
-      onRegister: function(token) {
-        console.log( 'TOKEN:', token );
+      onRegister: function (token) {
+        console.log('TOKEN:', token);
       },
       // (required) Called when a remote or local notification is opened or received
-      onNotification: function(notification) {
+      onNotification: function (notification) {
         return;
       },
       // IOS ONLY (optional): default: all - Permissions to register.
@@ -124,7 +124,7 @@ export default class MainPage extends Component<{}> {
   }
 
   scheduleNotification(_id, _message, _date) {
-    if(_date === "") return;
+    if (_date === "") return;
     let notificationDate = moment(_date, 'MM-DD-YYYY h:mm:ss a').toDate();
     let notificationMessage = 'You have a deadline today: ' + _message;
     PushNotification.localNotificationSchedule({
@@ -143,9 +143,9 @@ export default class MainPage extends Component<{}> {
     AsyncStorage.setItem("items", JSON.stringify(items));
   }
 
-  handleUpdateText(key, text){
+  handleUpdateText(key, text) {
     const newItems = this.state.items.map((item) => {
-      if(item.key !== key) return item;
+      if (item.key !== key) return item;
       else {
         return {
           ...item,
@@ -156,10 +156,10 @@ export default class MainPage extends Component<{}> {
     this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter));
   }
 
-  handleTimeUp(key){
+  handleTimeUp(key) {
     console.log("time up!");
     const newItems = this.state.items.map((item) => {
-      if(item.key !== key) return item;
+      if (item.key !== key) return item;
       else {
         return {
           ...item,
@@ -171,9 +171,9 @@ export default class MainPage extends Component<{}> {
   }
 
   // TODO: modify content should also update notification message
-  handleToggleEditing(key, editing){
+  handleToggleEditing(key, editing) {
     const newItems = this.state.items.map((item) => {
-      if(item.key !== key) return item;
+      if (item.key !== key) return item;
       else {
         return {
           ...item,
@@ -186,7 +186,7 @@ export default class MainPage extends Component<{}> {
   }
 
   handleAddItem() {
-    if(!this.state.value) return;
+    if (!this.state.value) return;
     let _date = moment().format('MM-DD-YYYY h:mm:ss a');
     this.scheduleNotification(_date, this.state.value, this.state.showDateValue);
     const newItems = [
@@ -202,13 +202,16 @@ export default class MainPage extends Component<{}> {
         type: this.state.todoType
       }
     ];
-    this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter), {value: "", showDateValue: ""});
+    this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter), {
+      value: "",
+      showDateValue: ""
+    });
   }
 
-  handleToggleComplete(key, complete){
-    const _complete=complete.checked;
+  handleToggleComplete(key, complete) {
+    const _complete = complete.checked;
     const newItems = this.state.items.map((item) => {
-      if(item.key !== key) return item;
+      if (item.key !== key) return item;
       return {
         ...item,
         complete: _complete
@@ -232,12 +235,12 @@ export default class MainPage extends Component<{}> {
     this.setSource(this.state.items, filterItems(this.state.items, this.state.statusFilter, typeFilter), {typeFilter});
   }
 
-  handleClearComplete(){
+  handleClearComplete() {
     const newItems = filterItems(this.state.items, "ACTIVE", this.state.typeFilter);
     this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter));
   }
 
-  handleHeaderInputChange(_value){
+  handleHeaderInputChange(_value) {
     this.setState(
       {value: _value}
     );
@@ -245,7 +248,7 @@ export default class MainPage extends Component<{}> {
 
   handleCancelEditing(key) {
     const newItems = this.state.items.map((item) => {
-      if(item.key !== key) return item;
+      if (item.key !== key) return item;
       else {
         return {
           ...item,
@@ -264,32 +267,32 @@ export default class MainPage extends Component<{}> {
     });
   }
 
-  _hideDateTimePicker(){
-    this.setState({ showDatePicker: false });
+  _hideDateTimePicker() {
+    this.setState({showDatePicker: false});
   }
 
-  _handleDatePicked(date){
+  _handleDatePicked(date) {
     this.setState({
       showDateValue: this.formatDate(date)
     });
     this._hideDateTimePicker();
   }
 
-  handleTodoTypeChange(type){
+  handleTodoTypeChange(type) {
     this.setState({
       todoType: type
     });
   }
 
-  formatDate(date){
+  formatDate(date) {
     return date === null ?
       "" : moment(date).format('MM-DD-YYYY h:mm:ss a');
   }
 
-  handleNavigation(component){
+  handleNavigation(component) {
     let _items = {};
     this.state.items.map((item) => {
-      if(item.ddl === '') return;
+      if (item.ddl === '') return;
       let _date = moment(item.ddl, 'MM-DD-YYYY h:mm:ss a').format('YYYY-MM-DD');
       _items[_date] = _items[_date] || [];
       _items[_date].push({...item});
@@ -309,10 +312,10 @@ export default class MainPage extends Component<{}> {
     }
   }
 
-  renderEmpty(){
+  renderEmpty() {
     return (
       <View style={styles.emptyView}>
-        <Icon name="md-arrow-up" color={theme.primaryColor} size={30} />
+        <Icon name="md-arrow-up" color={theme.primaryColor} size={30}/>
         <Text style={styles.emptyText}>
           There is no todo, add todo from top
         </Text>
@@ -363,7 +366,7 @@ export default class MainPage extends Component<{}> {
               ItemSeparatorComponent={() => {
                 return <View key={Date.now()} style={styles.separator}/>;
               }}
-              keyExtractor={(item, index) => {
+              keyExtractor={(item) => {
                 return item.key;
               }}
             />
@@ -401,7 +404,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F5F5',
     ...Platform.select({
-      ios: { paddingTop: 30 }
+      ios: {paddingTop: 30}
     })
   },
   content: {
