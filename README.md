@@ -1,4 +1,7 @@
 # rn-todo
+
+[![BuddyBuild](https://dashboard.buddybuild.com/api/statusImage?appID=5a1deffde4cdbe0001a5793f&branch=master&build=latest)](https://dashboard.buddybuild.com/apps/5a1deffde4cdbe0001a5793f/build/latest?branch=master)
+
 ## Todo 
 - [x] add the DDL :star::star::star::star:
 - [x] add the class for different event :star::star::star:
