@@ -22,9 +22,10 @@
 		"react-native-vector-icons": "^4.4.2"
 	},
 	"devDependencies": {
+		"babel-eslint": "7",
 		"babel-jest": "21.2.0",
 		"babel-preset-react-native": "4.0.0",
-		"eslint": "^4.13.1",
+		"eslint": "3.x",
 		"eslint-plugin-react": "^7.5.1",
 		"jest": "21.2.1",
 		"react-test-renderer": "16.0.0"
