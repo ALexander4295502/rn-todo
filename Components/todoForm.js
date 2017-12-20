@@ -29,17 +29,21 @@ export default class TodoForm extends Component {
 
   static propTypes = {
     onAddItem: PropTypes.func,
-    closeModal: PropTypes.func
+    closeModal: PropTypes.func,
+    onSaveEdit: PropTypes.func,
+    onCancelEdit: PropTypes.func,
+    editingItem: PropTypes.object,
+    showEditing: PropTypes.bool
   }
 
   constructor(props){
     super(props);
 
     this.state = {
-      showDateValue: "",
+      showDateValue: this.props.showEditing ? this.props.editingItem.ddl : "",
       showDatePicker: false,
-      TodoType: "None",
-      TodoText: "",
+      TodoType: this.props.showEditing ? this.props.editingItem.type : "None",
+      TodoText: this.props.showEditing ? this.props.editingItem.text : "",
       error: ""
     };
 
@@ -90,14 +94,30 @@ export default class TodoForm extends Component {
   }
 
   submitTodo = () => {
-    this.props.onAddItem(
-      {
-        showDateValue: this.state.showDateValue,
+    if(this.props.showEditing) {
+      this.props.onSaveEdit({
+        type: this.state.TodoType,
         text: this.state.TodoText,
-        todoType: this.state.TodoType
-      }
-    )
+        ddl: this.state.showDateValue
+      });
+    } else {
+      this.props.onAddItem(
+        {
+          showDateValue: this.state.showDateValue,
+          text: this.state.TodoText,
+          todoType: this.state.TodoType
+        }
+      )
+    }
   };
+
+  handleCloseModal = () => {
+    if(this.props.showEditing){
+      this.props.onCancelEdit();
+    } else {
+      this.props.closeModal();
+    }
+  }
 
   onChangeText = (text) => {
     this.setState({
@@ -139,7 +159,9 @@ export default class TodoForm extends Component {
 
     const CancelButton = MKButton.coloredButton()
       .withText('CANCEL')
-      .withOnPress(() => this.props.closeModal())
+      .withOnPress(() => {
+        this.handleCloseModal();
+      })
       .withStyle(styles.button)
       .build();
 

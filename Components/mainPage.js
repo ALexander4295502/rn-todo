@@ -78,14 +78,16 @@ export default class MainPage extends Component<{}> {
       visible: false,
       todoType: 'None',
       typeFilter: 'None',
-      openModal: false
+      openModal: false,
+      showEditing: false,
+      editingItem: {}
     };
 
     this.handleToggleComplete = this.handleToggleComplete.bind(this);
     this.handleAddItem = this.handleAddItem.bind(this);
     this.handleRemoveItem = this.handleRemoveItem.bind(this);
     this.handleStatusFilter = this.handleStatusFilter.bind(this);
-    this.handleUpdateText = this.handleUpdateText.bind(this);
+    this.handleUpdateItem = this.handleUpdateItem.bind(this);
     this.handleToggleEditing = this.handleToggleEditing.bind(this);
     this.handleCancelEditing = this.handleCancelEditing.bind(this);
     this.handleHeaderInputChange = this.handleHeaderInputChange.bind(this);
@@ -159,16 +161,22 @@ export default class MainPage extends Component<{}> {
     AsyncStorage.setItem("items", JSON.stringify(items));
   }
 
-  handleUpdateText(key, text) {
+  handleUpdateItem(key, newItem) {
     const newItems = this.state.items.map((item) => {
       if (item.key !== key) return item;
       else {
         return {
           ...item,
-          text,
+          ...newItem
         }
       }
     });
+    this.setState({
+      editingItem: {},
+      showEditing: false,
+    }, () => {
+      this.handleCloseModal();
+    })
     this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter));
   }
 
@@ -197,6 +205,12 @@ export default class MainPage extends Component<{}> {
           unsaved: item.text
         }
       }
+    });
+    this.setState({
+      editingItem: this.state.items.find(item => item.key === key),
+      showEditing: true,
+    }, () => {
+      this.handleOpenModal();
     });
     this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter));
   }
@@ -266,6 +280,12 @@ export default class MainPage extends Component<{}> {
         }
       }
     });
+    this.setState({
+      editingItem: {},
+      showEditing: false,
+    }, () => {
+      this.handleCloseModal();
+    })
     this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter));
   }
 
@@ -369,9 +389,7 @@ export default class MainPage extends Component<{}> {
                     {...value}
                     onRemove={() => this.handleRemoveItem(key)}
                     onComplete={(complete) => this.handleToggleComplete(key, complete)}
-                    onUpdate={(text) => this.handleUpdateText(key, text)}
                     onToggleEdit={(editing) => this.handleToggleEditing(key, editing)}
-                    onCancelEdit={() => this.handleCancelEditing(key)}
                     onTimeUp={() => this.handleTimeUp(key)}
                     theme={theme}
                     formatDate={this.formatDate}
@@ -401,6 +419,10 @@ export default class MainPage extends Component<{}> {
           <TodoForm
             closeModal={this.handleCloseModal}
             onAddItem={this.handleAddItem}
+            showEditing={this.state.showEditing}
+            editingItem={this.state.editingItem}
+            onCancelEdit={() => this.handleCancelEditing(this.state.editingItem.key)}
+            onSaveEdit={(updateItem) => this.handleUpdateItem(this.state.editingItem.key, updateItem)}
           />
         </PopModal>
         <Footer
