@@ -7,6 +7,7 @@ import {
   AsyncStorage,
   FlatList,
   Text,
+  TouchableOpacity,
 } from 'react-native';
 
 import PropTypes from 'prop-types';
@@ -335,10 +336,15 @@ export default class MainPage extends Component<{}> {
   renderEmpty() {
     return (
       <View style={styles.emptyView}>
-        <Icon name="md-arrow-up" color={theme.primaryColor} size={30}/>
-        <Text style={styles.emptyText}>
-          There is no todo, add todo from top
-        </Text>
+        <TouchableOpacity 
+          style={styles.hintContainer}
+          onPress={this.handleOpenModal}
+        >
+          <Icon name="ios-add-circle-outline" color={theme.primaryColor} size={30}/>
+          <Text style={styles.emptyText}>
+            There is no todo, click here to add one.
+          </Text>
+        </TouchableOpacity>
       </View>
     )
   }
@@ -402,9 +408,9 @@ export default class MainPage extends Component<{}> {
           typeFilter={this.state.typeFilter}
           onStatusFilter={this.handleStatusFilter}
           onTypeFilter={this.handleTodoTypeFilter}
-          allCount={filterItems(this.state.items, "ACTIVE", "None").length}
-          workCount={filterItems(this.state.items, "ACTIVE", "Work").length}
-          lifeCount={filterItems(this.state.items, "ACTIVE", "Life").length}
+          allTodoCount={filterItems(this.state.items, "ACTIVE", "None").length}
+          workTodoCount={filterItems(this.state.items, "ACTIVE", "Work").length}
+          lifeTodoCount={filterItems(this.state.items, "ACTIVE", "Life").length}
           theme={theme}
           onNavigation={this.handleNavigation}
           openModal={this.handleOpenModal}
@@ -435,7 +441,8 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   emptyText: {
-    color: theme.primaryColor
+    color: theme.primaryColor,
+    marginTop: 5,
   },
   list: {
     backgroundColor: "#fff"
@@ -457,5 +464,8 @@ const styles = StyleSheet.create({
   spinner: {
     width: 50,
     height: 50,
+  },
+  hintContainer: {
+    alignItems: 'center'
   }
 });

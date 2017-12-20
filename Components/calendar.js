@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
 import {
-  Text,
   View,
   StyleSheet
 } from 'react-native';
+
+import PropTypes from "prop-types";
 
 import {Agenda} from 'react-native-calendars';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -17,6 +18,12 @@ const dotColor = {
 };
 
 export default class Calendar extends Component {
+
+  static propTypes = {
+    items: PropTypes.array,
+    theme: PropTypes.object
+  }
+
   constructor(props) {
     super(props);
     this.state = {
@@ -90,7 +97,11 @@ export default class Calendar extends Component {
         const time = day.timestamp + i * 24 * 60 * 60 * 1000;
         const strTime = this.timeToString(time);
         if (!this.state.items[strTime]) {
-          this.state.items[strTime] = [];
+          let copyItems = [...this.state.items];
+          copyItems[strTime] = [];
+          this.setState({
+            items: copyItems
+          })
         }
       }
       const newItems = {};

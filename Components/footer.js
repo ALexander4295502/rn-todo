@@ -5,6 +5,7 @@ import {
   Text,
   Dimensions,
 } from 'react-native';
+import PropTypes from "prop-types";
 
 import {
   MKRadioButton,
@@ -16,9 +17,22 @@ import Icon from 'react-native-vector-icons/Ionicons';
 // Get cheat sheet here:
 // https://infinitered.github.io/ionicons-version-3-search/
 
-const {width, height} = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
 export default class Footer extends Component {
+
+  static propTypes = {
+    typeFilter: PropTypes.string,
+    theme: PropTypes.object,
+    statusFilter: PropTypes.string,
+    onNavigation: PropTypes.func,
+    openModal: PropTypes.func,
+    lifeTodoCount: PropTypes.number,
+    allTodoCount: PropTypes.number,
+    workTodoCount: PropTypes.number,
+    onTypeFilter: PropTypes.func,
+    onStatusFilter: PropTypes.func
+  }
 
   constructor(props) {
     super(props);
@@ -82,9 +96,9 @@ export default class Footer extends Component {
               </ActionButton.Item>
               <ActionButton.Item
                 buttonColor={this.props.theme.lightColor}
-                title={`Life (${this.props.lifeCount})`}
+                title={`Life (${this.props.lifeTodoCount})`}
                 textStyle={{
-                  minWidth: (`Life (${this.props.lifeCount})`).length * 0.015 * width,
+                  minWidth: (`Life (${this.props.lifeTodoCount})`).length * 0.015 * width,
                 }}
                 onPress={() => this.props.onTypeFilter("Life")}
               >
@@ -92,9 +106,9 @@ export default class Footer extends Component {
               </ActionButton.Item>
               <ActionButton.Item
                 buttonColor={this.props.theme.lightColor}
-                title={`Work (${this.props.workCount})`}
+                title={`Work (${this.props.workTodoCount})`}
                 textStyle={{
-                  minWidth: (`Work (${this.props.workCount})`).length * 0.017 * width,
+                  minWidth: (`Work (${this.props.workTodoCount})`).length * 0.017 * width,
                 }}
                 onPress={() => this.props.onTypeFilter("Work")}
               >
@@ -102,9 +116,9 @@ export default class Footer extends Component {
               </ActionButton.Item>
               <ActionButton.Item
                 buttonColor={this.props.theme.lightColor}
-                title={`All (${this.props.allCount})`}
+                title={`All (${this.props.allTodoCount})`}
                 textStyle={{
-                  minWidth: (`All (${this.props.allCount})`).length * 0.015 * width,
+                  minWidth: (`All (${this.props.allTodoCount})`).length * 0.015 * width,
                 }}
                 onPress={() => this.props.onTypeFilter("None")}
               >
