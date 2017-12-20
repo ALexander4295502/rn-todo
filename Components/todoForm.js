@@ -4,8 +4,8 @@ import {
   View,
   Dimensions
 } from 'react-native';
+import PropTypes from "prop-types";
 
-import Header from './header';
 import {Dropdown} from 'react-native-material-dropdown';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 
@@ -26,6 +26,11 @@ import {
 const {width, height} = Dimensions.get('window');
 
 export default class TodoForm extends Component {
+
+  static propTypes = {
+    onAddItem: PropTypes.func,
+    closeModal: PropTypes.func
+  }
 
   constructor(props){
     super(props);
