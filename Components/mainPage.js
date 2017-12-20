@@ -142,10 +142,11 @@ export default class MainPage extends Component<{}> {
       items,
       dataSource: itemsDatasource,
       ...otherState,
+    }, () => {
+      PushNotification.setApplicationIconBadgeNumber(
+        filterItems(this.state.items, "ACTIVE", "None").length
+      );
     });
-    PushNotification.setApplicationIconBadgeNumber(
-      filterItems(this.state.items, "ACTIVE", "None").length
-    );
     AsyncStorage.setItem("items", JSON.stringify(items));
   }
 
@@ -337,17 +338,6 @@ export default class MainPage extends Component<{}> {
   render() {
     return (
       <View style={styles.container}>
-        {/*<Header*/}
-          {/*value={this.state.value}*/}
-          {/*onAddItem={this.handleAddItem}*/}
-          {/*onChange={(value) => this.handleHeaderInputChange(value)}*/}
-          {/*primaryColor={theme.primaryColor}*/}
-          {/*showDatePicker={this.handleShowTimePicker}*/}
-          {/*showDatePickerFlag={this.state.showDatePicker}*/}
-          {/*showDateValue={this.state.showDateValue}*/}
-          {/*todoType={this.state.todoType}*/}
-          {/*todoTypeChange={this.handleTodoTypeChange}*/}
-        {/*/>*/}
         <View style={styles.content}>
           {this.state.items.length === 0 ?
             this.renderEmpty() :
