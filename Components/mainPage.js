@@ -348,6 +348,9 @@ export default class MainPage extends Component<{}> {
   }
 
   handleCloseModal() {
+    if(this.state.editingItem.key) {
+      this.handleCancelEditing(this.state.editingItem.key);
+    }
     this.setState({
       openModal: false
     });
@@ -414,7 +417,7 @@ export default class MainPage extends Component<{}> {
         <PopModal
           open={this.state.openModal}
           offset={0}
-          modalDidClose={() => this.setState({openModal: false})}
+          modalDidClose={this.handleCloseModal}
         >
           <TodoForm
             closeModal={this.handleCloseModal}
