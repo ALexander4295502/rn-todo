@@ -8,12 +8,21 @@ import {
 import {
   getTheme
 } from 'react-native-material-kit';
+import PropTypes from "prop-types";
 
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const theme = getTheme();
 
 export default class CalenderListRow extends Component {
+
+  static propTypes = {
+    type: PropTypes.string,
+    theme: PropTypes.object,
+    complete: PropTypes.bool,
+    text: PropTypes.string,
+    ddl: PropTypes.string
+  }
 
   todoTypeIconGenerate() {
     if (this.props.type === 'None')
