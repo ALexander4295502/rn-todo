@@ -9,6 +9,8 @@ import {
   Text,
 } from 'react-native';
 
+import PropTypes from 'prop-types';
+
 import {
   MKSpinner,
   setTheme,
@@ -54,7 +56,12 @@ const theme = {
 
 export default class MainPage extends Component<{}> {
 
+  static propTypes = {
+    navigator: PropTypes.object.isRequired
+  }
+
   constructor(props) {
+    // custom console
     console.ignoredYellowBox = ['Remote debugger'];
     super(props);
     this.state = {
@@ -72,6 +79,7 @@ export default class MainPage extends Component<{}> {
       typeFilter: 'None',
       openModal: false
     };
+
     this.handleToggleComplete = this.handleToggleComplete.bind(this);
     this.handleAddItem = this.handleAddItem.bind(this);
     this.handleRemoveItem = this.handleRemoveItem.bind(this);
@@ -94,13 +102,13 @@ export default class MainPage extends Component<{}> {
 
     PushNotification.configure({
       // (optional) Called when Token is generated (iOS and Android)
-      onRegister: function (token) {
-        console.log('TOKEN:', token);
-      },
+      // onRegister: function (token) {
+      //   console.log('TOKEN:', token);
+      // },
       // (required) Called when a remote or local notification is opened or received
-      onNotification: function (notification) {
-        return;
-      },
+      // onNotification: function (notification) {
+      //   return;
+      // },
       // IOS ONLY (optional): default: all - Permissions to register.
       permissions: {
         alert: true,
@@ -118,7 +126,7 @@ export default class MainPage extends Component<{}> {
         const items = JSON.parse(json) || [];
         this.setSource(items, items, {loading: false});
       } catch (e) {
-        console.error("Load storage error", e);
+        // console.error("Load storage error", e);
         this.setState({
           loading: false
         });
@@ -135,7 +143,7 @@ export default class MainPage extends Component<{}> {
       message: notificationMessage, // (required)
       date: notificationDate,
     });
-  };
+  }
 
   setSource(items, itemsDatasource, otherState = {}) {
     this.setState({
@@ -164,7 +172,7 @@ export default class MainPage extends Component<{}> {
   }
 
   handleTimeUp(key) {
-    console.log("time up!");
+    // console.log("time up!");
     const newItems = this.state.items.map((item) => {
       if (item.key !== key) return item;
       else {
@@ -261,7 +269,7 @@ export default class MainPage extends Component<{}> {
   }
 
   handleShowTimePicker() {
-    console.log("show picker!!!");
+    // console.log("show picker!!!");
     this.setState({
       showDatePicker: true
     });
@@ -383,13 +391,12 @@ export default class MainPage extends Component<{}> {
           open={this.state.openModal}
           offset={0}
           modalDidClose={() => this.setState({openModal: false})}
-          children={
-            <TodoForm
-              closeModal={this.handleCloseModal}
-              onAddItem={this.handleAddItem}
-            />
-          }
-        />
+        >
+          <TodoForm
+            closeModal={this.handleCloseModal}
+            onAddItem={this.handleAddItem}
+          />
+        </PopModal>
         <Footer
           statusFilter={this.state.statusFilter}
           typeFilter={this.state.typeFilter}

@@ -11,9 +11,23 @@ import {
 
 export default class PopModal extends Component {
 
+  static propTypes = {
+    open: PropTypes.bool,
+    offset: PropTypes.number,
+    overlayBackground: PropTypes.string,
+    animationDuration: PropTypes.number,
+    animationTension: PropTypes.number,
+    modalDidOpen: PropTypes.func,
+    modalDidClose: PropTypes.func,
+    closeOnTouchOutside: PropTypes.bool,
+    disableOnBackPress: PropTypes.bool,
+    children: PropTypes.object,
+    containerStyle: PropTypes.object,
+    modalStyle: PropTypes.object
+  }
+
   constructor(props) {
     super(props);
-
     this.state = {
       opacity: new Animated.Value(0),
       scale: new Animated.Value(0.8),
