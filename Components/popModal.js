@@ -185,13 +185,15 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0)'
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+    zIndex: 2,
   },
   defaultModalStyle: {
     borderRadius: 2,
     margin: 20,
     padding: 10,
-    backgroundColor: '#F5F5F5'
+    backgroundColor: '#F5F5F5',
+    zIndex: 3,
   },
   hidden: {
     top: -100000,
