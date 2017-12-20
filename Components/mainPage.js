@@ -143,6 +143,9 @@ export default class MainPage extends Component<{}> {
       dataSource: itemsDatasource,
       ...otherState,
     });
+    PushNotification.setApplicationIconBadgeNumber(
+      filterItems(this.state.items, "ACTIVE", "None").length
+    );
     AsyncStorage.setItem("items", JSON.stringify(items));
   }
 
