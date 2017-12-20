@@ -8,6 +8,7 @@ import {
 import {
   getTheme
 } from 'react-native-material-kit';
+import PropTypes from "prop-types";
 
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -15,42 +16,50 @@ const theme = getTheme();
 
 export default class CalenderListRow extends Component {
 
-  todoTypeIconGenerate(){
-    if(this.props.type === 'None')
+  static propTypes = {
+    type: PropTypes.string,
+    theme: PropTypes.object,
+    complete: PropTypes.bool,
+    text: PropTypes.string,
+    ddl: PropTypes.string
+  }
+
+  todoTypeIconGenerate() {
+    if (this.props.type === 'None')
       return (
-        <Icon name="md-done-all" style={styles.iconStyle} size={14} color={this.props.theme.primaryColor} />
+        <Icon name="md-done-all" style={styles.iconStyle} size={14} color={this.props.theme.primaryColor}/>
       );
-    if(this.props.type === 'Work')
+    if (this.props.type === 'Work')
       return (
-        <Icon name="ios-book" style={styles.iconStyle} size={14} color={this.props.theme.primaryColor} />
+        <Icon name="ios-book" style={styles.iconStyle} size={14} color={this.props.theme.primaryColor}/>
       );
-    if(this.props.type === 'Life')
+    if (this.props.type === 'Life')
       return (
-        <Icon name="md-basket" style={styles.iconStyle} size={14} color={this.props.theme.primaryColor} />
+        <Icon name="md-basket" style={styles.iconStyle} size={14} color={this.props.theme.primaryColor}/>
       );
   }
 
   render() {
     return (
-    <View style={styles.container}>
-      <Text style={[
-        theme.cardContentStyle,
-        {marginTop: -10, marginLeft: -10},
-        this.props.complete && styles.complete
-      ]}>
-        {this.props.text}
-      </Text>
-      <View style={styles.metaView}>
-        {this.todoTypeIconGenerate()}
-        <Text style={styles.timeText}>
-          {
-            this.props.ddl === "" ?
-              "No deadline" :
-              "DDL: " + this.props.ddl
-          }
+      <View style={styles.container}>
+        <Text style={[
+          theme.cardContentStyle,
+          {marginTop: -10, marginLeft: -10},
+          this.props.complete && styles.complete
+        ]}>
+          {this.props.text}
         </Text>
+        <View style={styles.metaView}>
+          {this.todoTypeIconGenerate()}
+          <Text style={styles.timeText}>
+            {
+              this.props.ddl === "" ?
+                "No deadline" :
+                "DDL: " + this.props.ddl
+            }
+          </Text>
+        </View>
       </View>
-    </View>
     );
   }
 }

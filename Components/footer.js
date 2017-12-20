@@ -5,6 +5,7 @@ import {
   Text,
   Dimensions,
 } from 'react-native';
+import PropTypes from "prop-types";
 
 import {
   MKRadioButton,
@@ -16,40 +17,52 @@ import Icon from 'react-native-vector-icons/Ionicons';
 // Get cheat sheet here:
 // https://infinitered.github.io/ionicons-version-3-search/
 
-const { width, height } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
 export default class Footer extends Component {
 
-  constructor(props){
+  static propTypes = {
+    typeFilter: PropTypes.string,
+    theme: PropTypes.object,
+    statusFilter: PropTypes.string,
+    onNavigation: PropTypes.func,
+    openModal: PropTypes.func,
+    lifeTodoCount: PropTypes.number,
+    allTodoCount: PropTypes.number,
+    workTodoCount: PropTypes.number,
+    onTypeFilter: PropTypes.func,
+    onStatusFilter: PropTypes.func
+  }
+
+  constructor(props) {
     super(props);
     this.todoTypeIconGenerate = this.todoTypeIconGenerate.bind(this);
   }
 
-  todoTypeIconGenerate(){
-    if(this.props.typeFilter === 'None')
-      return (<Icon name="md-done-all" color="#fff" size={20}/>);
-    if(this.props.typeFilter === 'Work')
+  todoTypeIconGenerate() {
+    if (this.props.typeFilter === 'None')
+      return (<Icon name="md-menu" color="#fff" size={20}/>);
+    if (this.props.typeFilter === 'Work')
       return (<Icon name="ios-book" color="#fff" size={20}/>);
-    if(this.props.typeFilter === 'Life')
+    if (this.props.typeFilter === 'Life')
       return (<Icon name="md-basket" color="#fff" size={20}/>);
   }
 
   render() {
     const {statusFilter} = this.props;
-    const ClearAllButton = MKButton.coloredButton()
-      .withText("Clear all\n completed")
-      .withOnPress(() => {
-        this.props.onClearComplete();
-      })
-      .withTextStyle({
-        color: 'white',
-        fontWeight: 'bold',
-        textAlign: 'center'
-      })
-      .build();
-    const fontColor= {
+    const fontColor = {
       color: this.props.theme.primaryColor
     };
+    const AddButton = MKButton.accentColoredFab()
+      .withBackgroundColor(this.props.theme.primaryColor)
+      .withOnPress(() => {
+        this.props.openModal();
+      })
+      .withStyle({
+        width: 40,
+        height: 40,
+      })
+      .build();
     return (
       <View style={styles.container}>
         <View style={styles.filters}>
@@ -62,13 +75,13 @@ export default class Footer extends Component {
               size={40}
               icon={this.todoTypeIconGenerate()}
               shadowStyle={{
-                  shadowOpacity: 0.45,
-                  shadowColor: '#000',
-                  shadowRadius: 1,
-                  shadowOffset: {
-                    width: 0,
-                    height: 4
-                  },
+                shadowOpacity: 0.45,
+                shadowColor: '#000',
+                shadowRadius: 1,
+                shadowOffset: {
+                  width: 1,
+                  height: 1
+                },
               }}
             >
               <ActionButton.Item
@@ -79,37 +92,37 @@ export default class Footer extends Component {
                 }}
                 onPress={() => this.props.onNavigation('calendar')}
               >
-                <Icon name="ios-calendar" style={styles.actionButtonIcon} />
+                <Icon name="ios-calendar" style={styles.actionButtonIcon}/>
               </ActionButton.Item>
               <ActionButton.Item
                 buttonColor={this.props.theme.lightColor}
-                title={`Life (${this.props.lifeCount})`}
+                title={`Life (${this.props.lifeTodoCount})`}
                 textStyle={{
-                  minWidth: (`Life (${this.props.lifeCount})`).length*0.015*width,
+                  minWidth: (`Life (${this.props.lifeTodoCount})`).length * 0.015 * width,
                 }}
                 onPress={() => this.props.onTypeFilter("Life")}
               >
-                <Icon name="md-basket" style={styles.actionButtonIcon} />
+                <Icon name="md-basket" style={styles.actionButtonIcon}/>
               </ActionButton.Item>
               <ActionButton.Item
                 buttonColor={this.props.theme.lightColor}
-                title={`Work (${this.props.workCount})`}
+                title={`Work (${this.props.workTodoCount})`}
                 textStyle={{
-                  minWidth: (`Work (${this.props.workCount})`).length*0.017*width,
+                  minWidth: (`Work (${this.props.workTodoCount})`).length * 0.017 * width,
                 }}
                 onPress={() => this.props.onTypeFilter("Work")}
               >
-                <Icon name="ios-book" style={styles.actionButtonIcon} />
+                <Icon name="ios-book" style={styles.actionButtonIcon}/>
               </ActionButton.Item>
               <ActionButton.Item
                 buttonColor={this.props.theme.lightColor}
-                title={`All (${this.props.allCount})`}
+                title={`All (${this.props.allTodoCount})`}
                 textStyle={{
-                  minWidth: (`All (${this.props.allCount})`).length*0.015*width,
+                  minWidth: (`All (${this.props.allTodoCount})`).length * 0.015 * width,
                 }}
                 onPress={() => this.props.onTypeFilter("None")}
               >
-                <Icon name="md-done-all" style={styles.actionButtonIcon} />
+                <Icon name="md-menu" style={styles.actionButtonIcon}/>
               </ActionButton.Item>
             </ActionButton>
           </View>
@@ -134,8 +147,10 @@ export default class Footer extends Component {
             />
             <Text style={[styles.buttonText, fontColor]}>COMPLETE</Text>
           </View>
-          <View style={styles.clearButtonWrap}>
-            <ClearAllButton />
+          <View style={styles.buttonWrap}>
+            <AddButton>
+              <Icon name="md-add" style={styles.actionButtonIcon}/>
+            </AddButton>
           </View>
         </View>
       </View>
@@ -149,16 +164,16 @@ const styles = StyleSheet.create({
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   filters: {
     flexDirection: 'row',
     justifyContent: 'space-around'
   },
   actionButtonWrap: {
-    top: -0.12*width,
-    paddingBottom: 0.1*width,
-    paddingHorizontal: 0.04*width
+    top: -0.01*width,
+    paddingBottom: 0.1 * width,
+    paddingHorizontal: 0.04 * width
   },
   actionButtonIcon: {
     fontSize: 20,
@@ -183,12 +198,9 @@ const styles = StyleSheet.create({
   },
   buttonWrap: {
     flexDirection: 'column',
-    paddingLeft: 0.08*width,
+    paddingLeft: 0.08 * width,
     justifyContent: 'center',
     alignItems: 'center'
-  },
-  clearButtonWrap: {
-    paddingLeft: 0.08*width,
   },
   buttonText: {
     fontWeight: 'bold',

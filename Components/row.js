@@ -4,25 +4,41 @@ import {
   View,
   Text,
   TouchableOpacity,
-  TextInput,
   Animated,
   Dimensions
 } from 'react-native';
 
 import {
   MKCheckbox,
-  MKButton,
   MKProgress,
 } from 'react-native-material-kit';
 
+import PropTypes from "prop-types";
 import Icon from 'react-native-vector-icons/Ionicons';
 import moment from 'moment';
 
-const { width, height } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
 export default class Row extends Component {
 
-  constructor(props){
+  static propTypes = {
+    date: PropTypes.string,
+    ddl: PropTypes.string,
+    type: PropTypes.string,
+    theme: PropTypes.object,
+    timeUp: PropTypes.bool,
+    complete: PropTypes.bool,
+    onTimeUp: PropTypes.func,
+    onToggleEdit: PropTypes.func,
+    onCancelEdit: PropTypes.func,
+    onRemove: PropTypes.func,
+    text: PropTypes.string,
+    onUpdate: PropTypes.func,
+    onComplete: PropTypes.func,
+    editing: PropTypes.bool
+  }
+
+  constructor(props) {
     super(props);
     this.animatedValue = new Animated.Value(0);
     this.state = {
@@ -32,23 +48,24 @@ export default class Row extends Component {
       totalTime: moment.duration(
         moment(this.props.ddl, 'MM-DD-YYYY h:mm:ss a').diff(moment(this.props.date, 'MM-DD-YYYY h:mm:ss a'))
       ),
+      timeInterval: {}
     };
     this.remainTimeTextGenerate = this.remainTimeTextGenerate.bind(this);
     this.remainTimeProgress = this.remainTimeProgress.bind(this);
   }
 
-  todoTypeIconGenerate(){
-    if(this.props.type === 'None')
+  todoTypeIconGenerate() {
+    if (this.props.type === 'None')
       return (
-        <Icon name="md-done-all" style={styles.iconStyle} size={14} color={this.props.theme.primaryColor} />
+        <Icon name="md-done-all" style={styles.iconStyle} size={18} color={this.props.theme.primaryColor}/>
       );
-    if(this.props.type === 'Work')
+    if (this.props.type === 'Work')
       return (
-        <Icon name="ios-book" style={styles.iconStyle} size={14} color={this.props.theme.primaryColor} />
+        <Icon name="ios-book" style={styles.iconStyle} size={18} color={this.props.theme.primaryColor}/>
       );
-    if(this.props.type === 'Life')
+    if (this.props.type === 'Life')
       return (
-        <Icon name="md-basket" style={styles.iconStyle} size={14} color={this.props.theme.primaryColor} />
+        <Icon name="md-basket" style={styles.iconStyle} size={18} color={this.props.theme.primaryColor}/>
       );
   }
 
@@ -58,46 +75,67 @@ export default class Row extends Component {
       duration: 250,
     }).start();
 
-    if(this.props.ddl !== ""){
-      setInterval( () => {
-        if(this.props.timeUp || this.props.complete){
-        } else {
-          if(parseInt(this.state.timeRemain.asMilliseconds()) < 0){
-            this.props.onTimeUp();
-            return;
+    if (this.props.ddl !== "") {
+      this.setState({
+        timeInterval: setInterval(() => {
+          if (!this.props.timeUp && !this.props.complete) {
+            if (parseInt(this.state.timeRemain.asMilliseconds()) < 0) {
+              this.props.onTimeUp();
+              return;
+            }
+            this.setState({
+              timeRemain: moment.duration(
+                moment(this.props.ddl, 'MM-DD-YYYY h:mm:ss a').diff(moment())
+              )
+            })
           }
-          this.setState({
-            timeRemain : moment.duration(
-              moment(this.props.ddl, 'MM-DD-YYYY h:mm:ss a').diff(moment())
-            )
-          })
-        }
-      },1000)
+        }, 1000)
+      })
     }
   }
 
-  remainTimeTextGenerate(remainTime){
-    if(this.props.timeUp) return "time up";
-    if(this.props.complete) return "completed!";
-    if(parseInt(remainTime.asDays()) > 0)
+  componentWillUnmount() {
+    if(this.props.ddl !== "") {
+      clearInterval(this.state.timeInterval);
+    }
+  }
+
+  remainTimeTextGenerate(remainTime) {
+    if (this.props.timeUp) return "time up";
+    if (this.props.complete) return "completed!";
+    if (parseInt(remainTime.asDays()) > 0)
       return parseInt(remainTime.asDays()) + " days left";
-    else if(parseInt(remainTime.asHours()) > 0)
+    else if (parseInt(remainTime.asHours()) > 0)
       return parseInt(remainTime.asHours()) + " hours left";
-    else if(parseInt(remainTime.asMinutes()) > 0)
+    else if (parseInt(remainTime.asMinutes()) > 0)
       return parseInt(remainTime.asMinutes()) + " minutes left";
-    else if(parseInt(remainTime.asSeconds()) > 0)
+    else if (parseInt(remainTime.asSeconds()) > 0)
       return parseInt(remainTime.asSeconds()) + " seconds left";
     return "loading";
   }
 
-  remainTimeProgress(remainTime){
-    if(this.props.complete) return 0;
-    if(this.props.timeUp) return 1.0;
+  remainTimeProgress(remainTime) {
+    if (this.props.complete) return 0;
+    if (this.props.timeUp) return 1.0;
     return Math.min(
       1.0,
-      1.0 - parseInt(remainTime.asMilliseconds())/parseInt(this.state.totalTime.asMilliseconds())
+      1.0 - parseInt(remainTime.asMilliseconds()) / parseInt(this.state.totalTime.asMilliseconds())
     );
   }
+
+  clickDeleteButton = () => {
+    // TODO: For now "remove item" makes the row below it stays in previous place for a while
+    Animated.timing(this.animatedValue, {
+      toValue: 0,
+      duration: 250,
+    }).start(() => {
+      this.props.onRemove();
+    })
+  };
+
+  clickEditButton = () => {
+    
+  };
 
   render() {
     const animatedRowStyle = [
@@ -105,41 +143,17 @@ export default class Row extends Component {
       {
         transform: [
           {scale: this.animatedValue},
-          {rotate: this.animatedValue.interpolate({
-            inputRange: [0, 1],
-            outputRange: ['35deg', '0deg'],
-            extrapolate: 'clamp',
-          })}
+          {
+            rotate: this.animatedValue.interpolate({
+              inputRange: [0, 1],
+              outputRange: ['35deg', '0deg'],
+              extrapolate: 'clamp',
+            })
+          }
         ]
       }
     ];
-    const SaveButton = MKButton.coloredButton()
-      .withText('SAVE')
-      .withOnPress(() => {
-        this.props.onToggleEdit(false);
-      })
-      .withStyle(styles.button)
-      .build();
 
-    const CancelButton = MKButton.coloredButton()
-      .withText('CANCEL')
-      .withOnPress(() => {
-        this.props.onCancelEdit();
-      })
-      .withStyle(styles.button)
-      .build();
-
-    const DeleteButton = MKButton.coloredButton()
-      .withText('DELETE')
-      .withStyle(styles.button)
-      .withOnPress(() => {
-        // TODO: For now "remove item" makes the row below it stays in previous place for a while
-        Animated.timing(this.animatedValue, {
-          toValue: 0,
-          duration: 250,
-        }).start(() => {this.props.onRemove();})
-      })
-      .build();
     const {complete} = this.props;
     const textComponent = (
       <TouchableOpacity
@@ -148,7 +162,7 @@ export default class Row extends Component {
       >
         <Text style={[
           this.props.theme.cardContentStyle,
-          {marginTop: -10, marginLeft: -10},
+          {marginTop: -10, marginLeft: -10, fontSize: 20},
           complete && styles.complete
         ]}>
           {this.props.text}
@@ -160,7 +174,7 @@ export default class Row extends Component {
               this.props.ddl === "" ?
                 "No deadline" :
                 "DDL: " + moment(
-                  this.props.ddl, 'MM-DD-YYYY h:mm:ss a'
+                this.props.ddl, 'MM-DD-YYYY h:mm:ss a'
                 ).calendar()
             }
           </Text>
@@ -184,31 +198,6 @@ export default class Row extends Component {
       </TouchableOpacity>
     );
 
-    const editingComponent = (
-      <View style={styles.textWrap}>
-        <TextInput
-          onChangeText={this.props.onUpdate}
-          autoFocus
-          value={this.props.text}
-          style={
-            [
-              this.props.theme.cardContentStyle,
-              {marginTop: -1, marginLeft: -10},
-            ]
-          }
-          returnKeyType='done'
-          multiline
-        />
-      </View>
-    );
-
-    const editingButtons = (
-      <View style={styles.buttonWrap}>
-        <SaveButton />
-        <CancelButton />
-      </View>
-    );
-
     // TODO: the thumb animation in MKSwitch cannot perform state change properly
     return (
       <Animated.View style={[styles.container, animatedRowStyle]}>
@@ -217,8 +206,19 @@ export default class Row extends Component {
           onCheckedChange={this.props.onComplete}
           borderOffColor={this.props.theme.primaryColor}
         />
-        {this.props.editing ? editingComponent : textComponent}
-        {this.props.editing ? editingButtons : <DeleteButton />}
+        {textComponent}
+        <TouchableOpacity 
+          style={styles.button}
+          onPress={() => this.props.onToggleEdit(true)}
+        >
+          <Icon name="ios-settings" size={25} color={this.props.theme.primaryColor}/>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.button}
+          onPress={this.clickDeleteButton}
+        >
+          <Icon name="ios-trash" size={25} color={this.props.theme.primaryColor}/>
+        </TouchableOpacity>
       </Animated.View>
     );
   }
@@ -238,14 +238,14 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   progressText: {
-    marginLeft: 0.01*width,
-    fontSize: 0.03*width,
+    marginLeft: 0.01 * width,
+    fontSize: 0.03 * width,
     fontWeight: 'bold',
-    width: 0.2*width,
+    width: 0.2 * width,
     textAlign: 'center'
   },
   progressBar: {
-    width: 0.6*width,
+    width: 0.6 * width,
   },
   input: {
     flex: 1,
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     marginTop: -2,
   },
   timeText: {
-    fontSize: 10,
+    fontSize: 12,
     color: "#CC9A9A",
     marginLeft: 10,
   },
@@ -290,8 +290,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around'
   },
   button: {
-    marginVertical: 5,
-    height: 0.05*height,
-    width: 0.2*width,
+    marginVertical: 10,
+    marginHorizontal: 6,
   }
 });

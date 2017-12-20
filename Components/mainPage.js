@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import {
   StyleSheet,
   View,
@@ -7,7 +7,10 @@ import {
   AsyncStorage,
   FlatList,
   Text,
+  TouchableOpacity,
 } from 'react-native';
+
+import PropTypes from 'prop-types';
 
 import {
   MKSpinner,
@@ -22,19 +25,20 @@ import PushNotification from 'react-native-push-notification';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import Footer from './footer';
-import Header from './header';
+import TodoForm from './todoForm';
+import PopModal from './popModal';
 import Row from './row';
 import Calendar from './calendar';
 
 const filterItems = (items, statusFilter, typeFilter) => {
-  if(items === null) return [];
+  if (items === null) return [];
   return items.filter((item) => {
     if (typeFilter === 'None') return true;
     else return item.type === typeFilter;
   }).filter((item) => {
-    if(statusFilter === 'ALL') return true;
-    if(statusFilter === 'COMPLETED') return item.complete;
-    if(statusFilter === 'ACTIVE') return !item.complete;
+    if (statusFilter === 'ALL') return true;
+    if (statusFilter === 'COMPLETED') return item.complete;
+    if (statusFilter === 'ACTIVE') return !item.complete;
   })
 };
 
@@ -53,7 +57,12 @@ const theme = {
 
 export default class MainPage extends Component<{}> {
 
-  constructor(props){
+  static propTypes = {
+    navigator: PropTypes.object.isRequired
+  }
+
+  constructor(props) {
+    // custom console
     console.ignoredYellowBox = ['Remote debugger'];
     super(props);
     this.state = {
@@ -69,13 +78,16 @@ export default class MainPage extends Component<{}> {
       visible: false,
       todoType: 'None',
       typeFilter: 'None',
+      openModal: false,
+      showEditing: false,
+      editingItem: {}
     };
+
     this.handleToggleComplete = this.handleToggleComplete.bind(this);
     this.handleAddItem = this.handleAddItem.bind(this);
     this.handleRemoveItem = this.handleRemoveItem.bind(this);
     this.handleStatusFilter = this.handleStatusFilter.bind(this);
-    this.handleClearComplete = this.handleClearComplete.bind(this);
-    this.handleUpdateText = this.handleUpdateText.bind(this);
+    this.handleUpdateItem = this.handleUpdateItem.bind(this);
     this.handleToggleEditing = this.handleToggleEditing.bind(this);
     this.handleCancelEditing = this.handleCancelEditing.bind(this);
     this.handleHeaderInputChange = this.handleHeaderInputChange.bind(this);
@@ -88,16 +100,18 @@ export default class MainPage extends Component<{}> {
     this.handleTodoTypeChange = this.handleTodoTypeChange.bind(this);
     this.handleTodoTypeFilter = this.handleTodoTypeFilter.bind(this);
     this.handleNavigation = this.handleNavigation.bind(this);
+    this.handleOpenModal = this.handleOpenModal.bind(this);
+    this.handleCloseModal = this.handleCloseModal.bind(this);
 
     PushNotification.configure({
       // (optional) Called when Token is generated (iOS and Android)
-      onRegister: function(token) {
-        console.log( 'TOKEN:', token );
-      },
+      // onRegister: function (token) {
+      //   console.log('TOKEN:', token);
+      // },
       // (required) Called when a remote or local notification is opened or received
-      onNotification: function(notification) {
-        return;
-      },
+      // onNotification: function (notification) {
+      //   return;
+      // },
       // IOS ONLY (optional): default: all - Permissions to register.
       permissions: {
         alert: true,
@@ -115,7 +129,7 @@ export default class MainPage extends Component<{}> {
         const items = JSON.parse(json) || [];
         this.setSource(items, items, {loading: false});
       } catch (e) {
-        console.error("Load storage error", e);
+        // console.error("Load storage error", e);
         this.setState({
           loading: false
         });
@@ -124,7 +138,7 @@ export default class MainPage extends Component<{}> {
   }
 
   scheduleNotification(_id, _message, _date) {
-    if(_date === "") return;
+    if (_date === "") return;
     let notificationDate = moment(_date, 'MM-DD-YYYY h:mm:ss a').toDate();
     let notificationMessage = 'You have a deadline today: ' + _message;
     PushNotification.localNotificationSchedule({
@@ -132,34 +146,44 @@ export default class MainPage extends Component<{}> {
       message: notificationMessage, // (required)
       date: notificationDate,
     });
-  };
+  }
 
   setSource(items, itemsDatasource, otherState = {}) {
     this.setState({
       items,
       dataSource: itemsDatasource,
       ...otherState,
+    }, () => {
+      PushNotification.setApplicationIconBadgeNumber(
+        filterItems(this.state.items, "ACTIVE", "None").length
+      );
     });
     AsyncStorage.setItem("items", JSON.stringify(items));
   }
 
-  handleUpdateText(key, text){
+  handleUpdateItem(key, newItem) {
     const newItems = this.state.items.map((item) => {
-      if(item.key !== key) return item;
+      if (item.key !== key) return item;
       else {
         return {
           ...item,
-          text,
+          ...newItem
         }
       }
     });
+    this.setState({
+      editingItem: {},
+      showEditing: false,
+    }, () => {
+      this.handleCloseModal();
+    })
     this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter));
   }
 
-  handleTimeUp(key){
-    console.log("time up!");
+  handleTimeUp(key) {
+    // console.log("time up!");
     const newItems = this.state.items.map((item) => {
-      if(item.key !== key) return item;
+      if (item.key !== key) return item;
       else {
         return {
           ...item,
@@ -171,9 +195,9 @@ export default class MainPage extends Component<{}> {
   }
 
   // TODO: modify content should also update notification message
-  handleToggleEditing(key, editing){
+  handleToggleEditing(key, editing) {
     const newItems = this.state.items.map((item) => {
-      if(item.key !== key) return item;
+      if (item.key !== key) return item;
       else {
         return {
           ...item,
@@ -182,33 +206,40 @@ export default class MainPage extends Component<{}> {
         }
       }
     });
+    this.setState({
+      editingItem: this.state.items.find(item => item.key === key),
+      showEditing: true,
+    }, () => {
+      this.handleOpenModal();
+    });
     this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter));
   }
 
-  handleAddItem() {
-    if(!this.state.value) return;
+  handleAddItem(newTodoObject) {
     let _date = moment().format('MM-DD-YYYY h:mm:ss a');
-    this.scheduleNotification(_date, this.state.value, this.state.showDateValue);
+    this.scheduleNotification(_date, newTodoObject.value, newTodoObject.showDateValue);
     const newItems = [
       ...this.state.items || [],
       {
         key: Date.now(),
         date: _date,
-        ddl: this.state.showDateValue,
-        text: this.state.value,
+        ddl: newTodoObject.showDateValue,
+        text: newTodoObject.text,
         complete: false,
         editing: false,
         timeUp: false,
-        type: this.state.todoType
+        type: newTodoObject.todoType
       }
     ];
-    this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter), {value: "", showDateValue: ""});
+    this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter), {
+      openModal: false
+    });
   }
 
-  handleToggleComplete(key, complete){
-    const _complete=complete.checked;
+  handleToggleComplete(key, complete) {
+    const _complete = complete.checked;
     const newItems = this.state.items.map((item) => {
-      if(item.key !== key) return item;
+      if (item.key !== key) return item;
       return {
         ...item,
         complete: _complete
@@ -232,12 +263,7 @@ export default class MainPage extends Component<{}> {
     this.setSource(this.state.items, filterItems(this.state.items, this.state.statusFilter, typeFilter), {typeFilter});
   }
 
-  handleClearComplete(){
-    const newItems = filterItems(this.state.items, "ACTIVE", this.state.typeFilter);
-    this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter));
-  }
-
-  handleHeaderInputChange(_value){
+  handleHeaderInputChange(_value) {
     this.setState(
       {value: _value}
     );
@@ -245,7 +271,7 @@ export default class MainPage extends Component<{}> {
 
   handleCancelEditing(key) {
     const newItems = this.state.items.map((item) => {
-      if(item.key !== key) return item;
+      if (item.key !== key) return item;
       else {
         return {
           ...item,
@@ -254,42 +280,48 @@ export default class MainPage extends Component<{}> {
         }
       }
     });
+    this.setState({
+      editingItem: {},
+      showEditing: false,
+    }, () => {
+      this.handleCloseModal();
+    })
     this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter));
   }
 
   handleShowTimePicker() {
-    console.log("show picker!!!");
+    // console.log("show picker!!!");
     this.setState({
       showDatePicker: true
     });
   }
 
-  _hideDateTimePicker(){
-    this.setState({ showDatePicker: false });
+  _hideDateTimePicker() {
+    this.setState({showDatePicker: false});
   }
 
-  _handleDatePicked(date){
+  _handleDatePicked(date) {
     this.setState({
       showDateValue: this.formatDate(date)
     });
     this._hideDateTimePicker();
   }
 
-  handleTodoTypeChange(type){
+  handleTodoTypeChange(type) {
     this.setState({
       todoType: type
     });
   }
 
-  formatDate(date){
+  formatDate(date) {
     return date === null ?
       "" : moment(date).format('MM-DD-YYYY h:mm:ss a');
   }
 
-  handleNavigation(component){
+  handleNavigation(component) {
     let _items = {};
     this.state.items.map((item) => {
-      if(item.ddl === '') return;
+      if (item.ddl === '') return;
       let _date = moment(item.ddl, 'MM-DD-YYYY h:mm:ss a').format('YYYY-MM-DD');
       _items[_date] = _items[_date] || [];
       _items[_date].push({...item});
@@ -309,13 +341,33 @@ export default class MainPage extends Component<{}> {
     }
   }
 
-  renderEmpty(){
+  handleOpenModal() {
+    this.setState({
+      openModal: true
+    });
+  }
+
+  handleCloseModal() {
+    if(this.state.editingItem.key) {
+      this.handleCancelEditing(this.state.editingItem.key);
+    }
+    this.setState({
+      openModal: false
+    });
+  }
+
+  renderEmpty() {
     return (
       <View style={styles.emptyView}>
-        <Icon name="md-arrow-up" color={theme.primaryColor} size={30} />
-        <Text style={styles.emptyText}>
-          There is no todo, add todo from top
-        </Text>
+        <TouchableOpacity 
+          style={styles.hintContainer}
+          onPress={this.handleOpenModal}
+        >
+          <Icon name="ios-add-circle-outline" color={theme.primaryColor} size={30}/>
+          <Text style={styles.emptyText}>
+            There is no todo, click here to add one.
+          </Text>
+        </TouchableOpacity>
       </View>
     )
   }
@@ -323,17 +375,6 @@ export default class MainPage extends Component<{}> {
   render() {
     return (
       <View style={styles.container}>
-        <Header
-          value={this.state.value}
-          onAddItem={this.handleAddItem}
-          onChange={(value) => this.handleHeaderInputChange(value)}
-          primaryColor={theme.primaryColor}
-          showDatePicker={this.handleShowTimePicker}
-          showDatePickerFlag={this.state.showDatePicker}
-          showDateValue={this.state.showDateValue}
-          todoType={this.state.todoType}
-          todoTypeChange={this.handleTodoTypeChange}
-        />
         <View style={styles.content}>
           {this.state.items.length === 0 ?
             this.renderEmpty() :
@@ -351,9 +392,7 @@ export default class MainPage extends Component<{}> {
                     {...value}
                     onRemove={() => this.handleRemoveItem(key)}
                     onComplete={(complete) => this.handleToggleComplete(key, complete)}
-                    onUpdate={(text) => this.handleUpdateText(key, text)}
                     onToggleEdit={(editing) => this.handleToggleEditing(key, editing)}
-                    onCancelEdit={() => this.handleCancelEditing(key)}
                     onTimeUp={() => this.handleTimeUp(key)}
                     theme={theme}
                     formatDate={this.formatDate}
@@ -363,12 +402,11 @@ export default class MainPage extends Component<{}> {
               ItemSeparatorComponent={() => {
                 return <View key={Date.now()} style={styles.separator}/>;
               }}
-              keyExtractor={(item, index) => {
+              keyExtractor={(item) => {
                 return item.key;
               }}
             />
           }
-
         </View>
         <DateTimePicker
           isVisible={this.state.showDatePicker}
@@ -376,17 +414,31 @@ export default class MainPage extends Component<{}> {
           onCancel={this._hideDateTimePicker}
           mode="datetime"
         />
+        <PopModal
+          open={this.state.openModal}
+          offset={0}
+          modalDidClose={this.handleCloseModal}
+        >
+          <TodoForm
+            closeModal={this.handleCloseModal}
+            onAddItem={this.handleAddItem}
+            showEditing={this.state.showEditing}
+            editingItem={this.state.editingItem}
+            onCancelEdit={() => this.handleCancelEditing(this.state.editingItem.key)}
+            onSaveEdit={(updateItem) => this.handleUpdateItem(this.state.editingItem.key, updateItem)}
+          />
+        </PopModal>
         <Footer
           statusFilter={this.state.statusFilter}
           typeFilter={this.state.typeFilter}
           onStatusFilter={this.handleStatusFilter}
           onTypeFilter={this.handleTodoTypeFilter}
-          onClearComplete={this.handleClearComplete}
-          allCount={filterItems(this.state.items, "ACTIVE", "None").length}
-          workCount={filterItems(this.state.items, "ACTIVE", "Work").length}
-          lifeCount={filterItems(this.state.items, "ACTIVE", "Life").length}
+          allTodoCount={filterItems(this.state.items, "ACTIVE", "None").length}
+          workTodoCount={filterItems(this.state.items, "ACTIVE", "Work").length}
+          lifeTodoCount={filterItems(this.state.items, "ACTIVE", "Life").length}
           theme={theme}
           onNavigation={this.handleNavigation}
+          openModal={this.handleOpenModal}
         />
         {this.state.loading && <View style={styles.loading}>
           <MKSpinner style={styles.spinner}/>
@@ -401,7 +453,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F5F5F5',
     ...Platform.select({
-      ios: { paddingTop: 30 }
+      ios: {paddingTop: 30}
     })
   },
   content: {
@@ -414,7 +466,8 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   emptyText: {
-    color: theme.primaryColor
+    color: theme.primaryColor,
+    marginTop: 5,
   },
   list: {
     backgroundColor: "#fff"
@@ -436,5 +489,8 @@ const styles = StyleSheet.create({
   spinner: {
     width: 50,
     height: 50,
+  },
+  hintContainer: {
+    alignItems: 'center'
   }
 });

@@ -1,4 +1,9 @@
 # rn-todo
+
+[![BuddyBuild](https://dashboard.buddybuild.com/api/statusImage?appID=5a1deffde4cdbe0001a5793f&branch=master&build=latest)](https://dashboard.buddybuild.com/apps/5a1deffde4cdbe0001a5793f/build/latest?branch=master)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+
 ## Todo 
 - [x] add the DDL :star::star::star::star:
 - [x] add the class for different event :star::star::star:
@@ -6,6 +11,7 @@
 - [x] add alarm :star::star::star:
 - [ ] change theme color :star::star:
 - [ ] add todo suggestion :star::star::star:
+- [ ] add time period attributes for todo :star::star::star:
 
 
 ## Tests

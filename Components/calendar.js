@@ -1,9 +1,11 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import {
-  Text,
   View,
-  StyleSheet
+  StyleSheet,
+  TouchableOpacity
 } from 'react-native';
+
+import PropTypes from "prop-types";
 
 import {Agenda} from 'react-native-calendars';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -17,6 +19,13 @@ const dotColor = {
 };
 
 export default class Calendar extends Component {
+
+  static propTypes = {
+    items: PropTypes.object,
+    theme: PropTypes.object,
+    navigator: PropTypes.object
+  }
+
   constructor(props) {
     super(props);
     this.state = {
@@ -27,7 +36,7 @@ export default class Calendar extends Component {
     this.generateMarkedDots();
   }
 
-  generateMarkedDots(){
+  generateMarkedDots() {
     let markedDates = {};
     Object.keys(this.state.items).forEach((key) => {
       markedDates[key] = {dots: []};
@@ -60,12 +69,12 @@ export default class Calendar extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <View
+        <TouchableOpacity
+          onPress={this.props.navigator.pop}
           style={styles.swipeIndicatorWrap}
-          pointerEvents="none"
         >
           <Icon name="ios-arrow-back-outline" color="#000" size={20}/>
-        </View>
+        </TouchableOpacity>
         <Agenda
           items={this.state.items}
           loadItemsForMonth={this.loadItems.bind(this)}
@@ -86,18 +95,19 @@ export default class Calendar extends Component {
 
   loadItems(day) {
     setTimeout(() => {
+      let newItems = {};
       for (let i = -15; i < 85; i++) {
         const time = day.timestamp + i * 24 * 60 * 60 * 1000;
         const strTime = this.timeToString(time);
-        if (!this.state.items[strTime]) {
-          this.state.items[strTime] = [];
+        if (this.state.items[strTime]) {
+          newItems[strTime] = this.state.items[strTime];
+        } else {
+          // We need to set empty element to make sure thw renderEmptyDate() work
+          newItems[strTime] = []
         }
       }
-      const newItems = {};
-      Object.keys(this.state.items).forEach(key => {newItems[key] = this.state.items[key];});
       this.setState({
-        items: newItems,
-        loading: false,
+        items: newItems
       });
     }, 1000);
   }
@@ -136,16 +146,16 @@ const styles = StyleSheet.create({
   swipeIndicatorWrap: {
     position: "absolute",
     left: 10,
-    top: 0,
-    right: 0,
-    bottom: 0,
+    top: '50%',
+    height: 40,
+    width: 40,
+    backgroundColor: 'transparent',
     alignItems: 'flex-start',
     justifyContent: 'center',
     zIndex: 10,
-    backgroundColor: 'transparent'
   },
   item: {
-    backgroundColor: 'white',
+    backgroundColor: '#fff',
     flex: 1,
     borderRadius: 5,
     padding: 10,
@@ -154,7 +164,7 @@ const styles = StyleSheet.create({
   },
   emptyDate: {
     height: 15,
-    flex:1,
+    flex: 1,
     paddingTop: 30
   },
 });
