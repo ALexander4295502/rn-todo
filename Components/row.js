@@ -48,6 +48,7 @@ export default class Row extends Component {
       totalTime: moment.duration(
         moment(this.props.ddl, 'MM-DD-YYYY h:mm:ss a').diff(moment(this.props.date, 'MM-DD-YYYY h:mm:ss a'))
       ),
+      timeInterval: {}
     };
     this.remainTimeTextGenerate = this.remainTimeTextGenerate.bind(this);
     this.remainTimeProgress = this.remainTimeProgress.bind(this);
@@ -75,19 +76,27 @@ export default class Row extends Component {
     }).start();
 
     if (this.props.ddl !== "") {
-      setInterval(() => {
-        if (!this.props.timeUp && !this.props.complete) {
-          if (parseInt(this.state.timeRemain.asMilliseconds()) < 0) {
-            this.props.onTimeUp();
-            return;
+      this.setState({
+        timeInterval: setInterval(() => {
+          if (!this.props.timeUp && !this.props.complete) {
+            if (parseInt(this.state.timeRemain.asMilliseconds()) < 0) {
+              this.props.onTimeUp();
+              return;
+            }
+            this.setState({
+              timeRemain: moment.duration(
+                moment(this.props.ddl, 'MM-DD-YYYY h:mm:ss a').diff(moment())
+              )
+            })
           }
-          this.setState({
-            timeRemain: moment.duration(
-              moment(this.props.ddl, 'MM-DD-YYYY h:mm:ss a').diff(moment())
-            )
-          })
-        }
-      }, 1000)
+        }, 1000)
+      })
+    }
+  }
+
+  componentWillUnmount() {
+    if(this.props.ddl !== "") {
+      clearInterval(this.state.timeInterval);
     }
   }
 
