@@ -22,7 +22,8 @@ import PushNotification from 'react-native-push-notification';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import Footer from './footer';
-import Header from './header';
+import TodoForm from './todoForm';
+import PopModal from './popModal';
 import Row from './row';
 import Calendar from './calendar';
 
@@ -69,12 +70,12 @@ export default class MainPage extends Component<{}> {
       visible: false,
       todoType: 'None',
       typeFilter: 'None',
+      openModal: false
     };
     this.handleToggleComplete = this.handleToggleComplete.bind(this);
     this.handleAddItem = this.handleAddItem.bind(this);
     this.handleRemoveItem = this.handleRemoveItem.bind(this);
     this.handleStatusFilter = this.handleStatusFilter.bind(this);
-    this.handleClearComplete = this.handleClearComplete.bind(this);
     this.handleUpdateText = this.handleUpdateText.bind(this);
     this.handleToggleEditing = this.handleToggleEditing.bind(this);
     this.handleCancelEditing = this.handleCancelEditing.bind(this);
@@ -88,6 +89,8 @@ export default class MainPage extends Component<{}> {
     this.handleTodoTypeChange = this.handleTodoTypeChange.bind(this);
     this.handleTodoTypeFilter = this.handleTodoTypeFilter.bind(this);
     this.handleNavigation = this.handleNavigation.bind(this);
+    this.handleOpenModal = this.handleOpenModal.bind(this);
+    this.handleCloseModal = this.handleCloseModal.bind(this);
 
     PushNotification.configure({
       // (optional) Called when Token is generated (iOS and Android)
@@ -185,26 +188,24 @@ export default class MainPage extends Component<{}> {
     this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter));
   }
 
-  handleAddItem() {
-    if (!this.state.value) return;
+  handleAddItem(newTodoObject) {
     let _date = moment().format('MM-DD-YYYY h:mm:ss a');
-    this.scheduleNotification(_date, this.state.value, this.state.showDateValue);
+    this.scheduleNotification(_date, newTodoObject.value, newTodoObject.showDateValue);
     const newItems = [
       ...this.state.items || [],
       {
         key: Date.now(),
         date: _date,
-        ddl: this.state.showDateValue,
-        text: this.state.value,
+        ddl: newTodoObject.showDateValue,
+        text: newTodoObject.text,
         complete: false,
         editing: false,
         timeUp: false,
-        type: this.state.todoType
+        type: newTodoObject.todoType
       }
     ];
     this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter), {
-      value: "",
-      showDateValue: ""
+      openModal: false
     });
   }
 
@@ -233,11 +234,6 @@ export default class MainPage extends Component<{}> {
 
   handleTodoTypeFilter(typeFilter) {
     this.setSource(this.state.items, filterItems(this.state.items, this.state.statusFilter, typeFilter), {typeFilter});
-  }
-
-  handleClearComplete() {
-    const newItems = filterItems(this.state.items, "ACTIVE", this.state.typeFilter);
-    this.setSource(newItems, filterItems(newItems, this.state.statusFilter, this.state.typeFilter));
   }
 
   handleHeaderInputChange(_value) {
@@ -312,6 +308,18 @@ export default class MainPage extends Component<{}> {
     }
   }
 
+  handleOpenModal() {
+    this.setState({
+      openModal: true
+    });
+  }
+
+  handleCloseModal() {
+    this.setState({
+      openModal: false
+    });
+  }
+
   renderEmpty() {
     return (
       <View style={styles.emptyView}>
@@ -326,17 +334,17 @@ export default class MainPage extends Component<{}> {
   render() {
     return (
       <View style={styles.container}>
-        <Header
-          value={this.state.value}
-          onAddItem={this.handleAddItem}
-          onChange={(value) => this.handleHeaderInputChange(value)}
-          primaryColor={theme.primaryColor}
-          showDatePicker={this.handleShowTimePicker}
-          showDatePickerFlag={this.state.showDatePicker}
-          showDateValue={this.state.showDateValue}
-          todoType={this.state.todoType}
-          todoTypeChange={this.handleTodoTypeChange}
-        />
+        {/*<Header*/}
+          {/*value={this.state.value}*/}
+          {/*onAddItem={this.handleAddItem}*/}
+          {/*onChange={(value) => this.handleHeaderInputChange(value)}*/}
+          {/*primaryColor={theme.primaryColor}*/}
+          {/*showDatePicker={this.handleShowTimePicker}*/}
+          {/*showDatePickerFlag={this.state.showDatePicker}*/}
+          {/*showDateValue={this.state.showDateValue}*/}
+          {/*todoType={this.state.todoType}*/}
+          {/*todoTypeChange={this.handleTodoTypeChange}*/}
+        {/*/>*/}
         <View style={styles.content}>
           {this.state.items.length === 0 ?
             this.renderEmpty() :
@@ -371,7 +379,6 @@ export default class MainPage extends Component<{}> {
               }}
             />
           }
-
         </View>
         <DateTimePicker
           isVisible={this.state.showDatePicker}
@@ -379,17 +386,28 @@ export default class MainPage extends Component<{}> {
           onCancel={this._hideDateTimePicker}
           mode="datetime"
         />
+        <PopModal
+          open={this.state.openModal}
+          offset={0}
+          modalDidClose={() => this.setState({openModal: false})}
+          children={
+            <TodoForm
+              closeModal={this.handleCloseModal}
+              onAddItem={this.handleAddItem}
+            />
+          }
+        />
         <Footer
           statusFilter={this.state.statusFilter}
           typeFilter={this.state.typeFilter}
           onStatusFilter={this.handleStatusFilter}
           onTypeFilter={this.handleTodoTypeFilter}
-          onClearComplete={this.handleClearComplete}
           allCount={filterItems(this.state.items, "ACTIVE", "None").length}
           workCount={filterItems(this.state.items, "ACTIVE", "Work").length}
           lifeCount={filterItems(this.state.items, "ACTIVE", "Life").length}
           theme={theme}
           onNavigation={this.handleNavigation}
+          openModal={this.handleOpenModal}
         />
         {this.state.loading && <View style={styles.loading}>
           <MKSpinner style={styles.spinner}/>

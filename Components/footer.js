@@ -27,7 +27,7 @@ export default class Footer extends Component {
 
   todoTypeIconGenerate() {
     if (this.props.typeFilter === 'None')
-      return (<Icon name="md-done-all" color="#fff" size={20}/>);
+      return (<Icon name="md-menu" color="#fff" size={20}/>);
     if (this.props.typeFilter === 'Work')
       return (<Icon name="ios-book" color="#fff" size={20}/>);
     if (this.props.typeFilter === 'Life')
@@ -36,20 +36,19 @@ export default class Footer extends Component {
 
   render() {
     const {statusFilter} = this.props;
-    const ClearAllButton = MKButton.coloredButton()
-      .withText("Clear all\n completed")
-      .withOnPress(() => {
-        this.props.onClearComplete();
-      })
-      .withTextStyle({
-        color: 'white',
-        fontWeight: 'bold',
-        textAlign: 'center'
-      })
-      .build();
     const fontColor = {
       color: this.props.theme.primaryColor
     };
+    const AddButton = MKButton.accentColoredFab()
+      .withBackgroundColor(this.props.theme.primaryColor)
+      .withOnPress(() => {
+        this.props.openModal();
+      })
+      .withStyle({
+        width: 40,
+        height: 40,
+      })
+      .build();
     return (
       <View style={styles.container}>
         <View style={styles.filters}>
@@ -66,8 +65,8 @@ export default class Footer extends Component {
                 shadowColor: '#000',
                 shadowRadius: 1,
                 shadowOffset: {
-                  width: 0,
-                  height: 4
+                  width: 1,
+                  height: 1
                 },
               }}
             >
@@ -109,7 +108,7 @@ export default class Footer extends Component {
                 }}
                 onPress={() => this.props.onTypeFilter("None")}
               >
-                <Icon name="md-done-all" style={styles.actionButtonIcon}/>
+                <Icon name="md-menu" style={styles.actionButtonIcon}/>
               </ActionButton.Item>
             </ActionButton>
           </View>
@@ -134,8 +133,10 @@ export default class Footer extends Component {
             />
             <Text style={[styles.buttonText, fontColor]}>COMPLETE</Text>
           </View>
-          <View style={styles.clearButtonWrap}>
-            <ClearAllButton/>
+          <View style={styles.buttonWrap}>
+            <AddButton>
+              <Icon name="md-add" style={styles.actionButtonIcon}/>
+            </AddButton>
           </View>
         </View>
       </View>
@@ -149,14 +150,15 @@ const styles = StyleSheet.create({
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    zIndex: -1,
   },
   filters: {
     flexDirection: 'row',
     justifyContent: 'space-around'
   },
   actionButtonWrap: {
-    top: -0.12 * width,
+    top: -0.01*width,
     paddingBottom: 0.1 * width,
     paddingHorizontal: 0.04 * width
   },
@@ -186,9 +188,6 @@ const styles = StyleSheet.create({
     paddingLeft: 0.08 * width,
     justifyContent: 'center',
     alignItems: 'center'
-  },
-  clearButtonWrap: {
-    paddingLeft: 0.08 * width,
   },
   buttonText: {
     fontWeight: 'bold',
